@@ -5,7 +5,7 @@
 <article class="flex flex-col items-center justify-center gap-8 text-gray-300 md:flex-row mb-20">
   <div
     class="[&>p]:mb-4 [&>p>strong]:text-yellow-500 [&>p>strong]:font-normal
-    [&>p>strong]:text-lg [&>p>strong]:font-mono text-pretty order-2 md:order-1 mr-5 animate-div"
+    [&>p>strong]:text-lg [&>p>strong]:font-mono text-pretty order-2 md:order-1 mr-5 about-content opacity-0 -translate-y-24 transition-all duration-1000"
   >
     <p>
         Mi nombre es Martín Castro. Comencé en la programación luego de enamorarme de la materia  "Pensamiento Científico" en la UBA. 
@@ -33,20 +33,61 @@
     </p>
   </div>
 
-  <img width="200" height="200" src="/pictures/Photo-me-02.webp" alt={personalImageAlt} class="order-1 object-cover w-60 h-full p-1 md:order-2 rotate-3 lg:p-2 lg:w-64 aspect-square rounded-2xl bg-black/20 ring-1 ring-black/70" style="object-position: 50% 10%">
-
+  <img 
+    width="200" 
+    height="200" 
+    src="/pictures/Photo-me-02.webp" 
+    alt={personalImageAlt} 
+    class="order-1 object-cover w-60 h-full p-1 md:order-2 rotate-3 lg:p-2 lg:w-64 aspect-square rounded-2xl bg-black/20 ring-1 ring-black/70 about-image opacity-0 translate-y-24 transition-all duration-1000" 
+    style="object-position: 50% 10%"
+  >
 </article>
+
+<script>
+  const observerOptions = {
+    root: null,
+    rootMargin: '0px',
+    threshold: 0.5
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const content = entry.target.querySelector('.about-content');
+      const image = entry.target.querySelector('.about-image');
+
+      if (entry.isIntersecting) {
+        // Animar entrada
+        if (content) {
+          content.classList.remove('opacity-0', '-translate-y-24');
+          content.classList.add('opacity-100', 'translate-y-0');
+        }
+        if (image) {
+          image.classList.remove('opacity-0', 'translate-y-24');
+          image.classList.add('opacity-100', 'translate-y-0');
+        }
+      } else {
+        // Animar salida
+        if (content) {
+          content.classList.add('opacity-0', '-translate-y-24');
+          content.classList.remove('opacity-100', 'translate-y-0');
+        }
+        if (image) {
+          image.classList.add('opacity-0', 'translate-y-24');
+          image.classList.remove('opacity-100', 'translate-y-0');
+        }
+      }
+    });
+  }, observerOptions);
+
+  // Observar el artículo
+  document.querySelectorAll('article').forEach(article => {
+    observer.observe(article);
+  });
+</script>
 
 <style>
     .text-shadow {
         text-shadow: 1px 1px 3px rgb(255, 225, 0);
-    }
-    
-    .animate-div {
-      animation: slide-up ease-in-out;
-      animation-timeline: view();
-      animation-range: entry 0% contain 40%;
-      animation-fill-mode: both;
     }
 </style>
 

@@ -78,50 +78,129 @@ const PROJECTS = [
 <div class="flex flex-col gap-y-4">
   {
     PROJECTS.map(({ image, title, description, tags, link, github }) => (
-    <article class="flex flex-col space-x-0 space-y-8 group md:flex-row md:space-x-8 md:space-y-0 transition-all duration-100 p-4">
-  <div class="w-full md:w-1/2 z-10 translate-y-36 md:translate-y-0 group-hover:translate-y-0 md:translate-x-60 md:group-hover:translate-x-0 transition-all duration-500">
-    <div class="relative flex flex-col items-center col-span-6 row-span-5 gap-8 transition duration-500 ease-in-out scale-75 group-hover:scale-100 md:scale-100 transform shadow-xl overflow-clip rounded-xl sm:rounded-xl md:group-hover:shadow-2xl lg:border lg:border-gray-800 lg:hover:border-gray-700">
-      {/* <Carousel/> */}
-      <img alt="photo project" class="object-cover object-top w-full transition duration-500 scale-150 group-hover:scale-100" src={image} />
-    </div>
-  </div>
+    <article class="flex flex-col space-x-0 space-y-8 md:flex-row md:space-x-8 md:space-y-0 transition-all duration-100 p-4 project-card">
+      <div class="w-full md:w-[45%] z-10 translate-y-36 md:translate-y-0 md:translate-x-60 transition-all duration-500 image-container">
+        <div class="relative flex flex-col items-center w-full gap-8 transition duration-500 ease-in-out transform scale-75 md:scale-100 shadow-xl overflow-clip rounded-xl sm:rounded-xl md:shadow-2xl lg:border lg:border-gray-800">
+          <div class="w-full aspect-[4/3] overflow-hidden">
+            <img 
+              alt="photo project" 
+              class="object-cover object-top w-full h-full transition duration-500 scale-150 project-image" 
+              src={image} 
+            />
+          </div>
+        </div>
+      </div>
 
-  <div class="w-full md:w-1/2 md:max-w-lg -translate-y-56 md:-translate-y-0 group-hover:-translate-y-0 scale-0 md:scale-50 md:opacity-0 md:-translate-x-56 md:group-hover:opacity-100 md:group-hover:-translate-x-0 group-hover:scale-100 transition-all duration-1000">
-    <h3 class="text-2xl font-bold text-gray-200">
-      {title}
-    </h3>
-    <div class="flex flex-wrap mt-3 m-auto grid-rows-2]">
-      <ul class="grid grid-cols-3 xs:grid-cols-4 gap-2">
-          {tags.map((tag) => (
-            <li>
-              <span
-                class={`flex justify-center items-center gap-x-2 rounded-full text-xs ${tag.class} py-1 px-2 `}
-              >
-                <tag.icon class="size-5" />
-                {tag.name}
-              </span>
-            </li>
-          ))}
-        </ul>
+      <div class="w-full md:w-1/2 md:max-w-lg -translate-y-56 md:-translate-y-0 scale-0 md:scale-50 md:opacity-0 md:-translate-x-56 content-container transition-all duration-1000">
+        <h3 class="text-2xl font-bold text-gray-200">
+          {title}
+        </h3>
+        <div class="flex flex-wrap mt-3 m-auto grid-rows-2]">
+          <ul class="grid grid-cols-3 xs:grid-cols-4 gap-2">
+            {tags.map((tag) => (
+              <li>
+                <span
+                  class={`flex justify-center items-center gap-x-2 rounded-full text-xs ${tag.class} py-1 px-2 `}
+                >
+                  <tag.icon class="size-5" />
+                  {tag.name}
+                </span>
+              </li>
+            ))}
+          </ul>
 
-      <div class="mt-4 text-gray-300">{description}</div>
-      <footer class="flex items-end justify-start mt-4 gap-x-4">
-          {github && (
-            <LinkButton href={github}>
-              <GitHub class="size-6" />
-              Code
-            </LinkButton>
-          )}
-          {link && (
-            <LinkButton href={link}>
-              <Link class="size-4" />
-              Preview
-            </LinkButton>
-          )}
-        </footer>
-    </div>
-  </div>
-</article>
+          <div class="mt-4 text-gray-300">{description}</div>
+          <footer class="flex items-end justify-start mt-4 gap-x-4">
+            {github && (
+              <LinkButton href={github}>
+                <GitHub class="size-6" />
+                Code
+              </LinkButton>
+            )}
+            {link && (
+              <LinkButton href={link}>
+                <Link class="size-4" />
+                Preview
+              </LinkButton>
+            )}
+          </footer>
+        </div>
+      </div>
+    </article>
     ))
   }
 </div>
+
+<script>
+  const observerOptions = {
+    root: null,
+    rootMargin: '0px',
+    threshold: 0.5
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const article = entry.target;
+      const imageContainer = article.querySelector('.image-container');
+      const contentContainer = article.querySelector('.content-container');
+      const projectImage = article.querySelector('.project-image');
+      const imageWrapper = article.querySelector('.image-container > div');
+
+      if (entry.isIntersecting) {
+        if (imageContainer) {
+          imageContainer.classList.remove('translate-y-36', 'md:translate-x-60');
+          if (window.innerWidth < 768) {
+            imageContainer.classList.add('w-full', 'md:max-w-lg');
+          }
+        }
+
+        if (contentContainer) {
+          contentContainer.classList.remove('-translate-y-56', 'scale-0', 'md:scale-50', 'md:opacity-0', 'md:-translate-x-56');
+          contentContainer.classList.add('scale-100', 'md:scale-100', 'md:opacity-100');
+        }
+
+        if (projectImage && window.innerWidth < 768) {
+          projectImage.classList.remove('scale-150');
+          projectImage.classList.add('scale-100');
+        }
+
+        if (imageWrapper && window.innerWidth < 768) {
+          imageWrapper.classList.remove('scale-75');
+          imageWrapper.classList.add('scale-100');
+        }
+      } else {
+        if (imageContainer) {
+          imageContainer.classList.add('translate-y-36', 'md:translate-x-60');
+          if (window.innerWidth < 768) {
+            imageContainer.classList.remove('w-full', 'md:max-w-lg');
+          }
+        }
+
+        if (contentContainer) {
+          contentContainer.classList.add('-translate-y-56', 'scale-0', 'md:scale-50', 'md:opacity-0', 'md:-translate-x-56');
+          contentContainer.classList.remove('scale-100', 'md:scale-100', 'md:opacity-100');
+        }
+
+        if (projectImage && window.innerWidth < 768) {
+          projectImage.classList.remove('scale-175');
+          projectImage.classList.add('scale-150');
+        }
+
+        if (imageWrapper && window.innerWidth < 768) {
+          imageWrapper.classList.remove('scale-100');
+          imageWrapper.classList.add('scale-75');
+        }
+      }
+    });
+  }, observerOptions);
+
+  document.querySelectorAll('.project-card').forEach(article => {
+    observer.observe(article);
+  });
+</script>
+
+<style>
+  .scale-175 {
+    transform: scale(1.75);
+  }
+</style>

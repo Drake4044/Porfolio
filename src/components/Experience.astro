@@ -16,26 +16,41 @@ const EXPERIENCE = [
         "Estudio intensivo como Programador / Desarrollador Web Full Stack utilizando tecnologías como: HTML, CSS, JavaScript, React, Redux, PostgreSQL, Node.js, Express y MySQL.",
         date: "Enero 2023"
     },
-       
 ]
 ---
 
-<ol class="relative border-s border-gray-200 dark:border-gray-700 ml-4 ">  
+<ol class="relative border-s border-gray-200 dark:border-gray-700 ml-7">  
     {
-        EXPERIENCE.map( experiencie => (
-        <li class="mb-10 ms-4 animate-div">
-            <ExperienceItem {...experiencie} />
-        </li>       
+        EXPERIENCE.map(experiencie => (
+            <li class="mb-10 ms-[1.05rem] experience-item opacity-0 -translate-x-24 transition-all duration-1000">
+                <ExperienceItem {...experiencie} />
+            </li>       
         ))
     }                
 </ol>
 
-<style>
-    .animate-div {
-      animation: slide-up ease-in-out;
-      animation-timeline: view();
-      animation-range: entry 0% contain 40%;
-      animation-fill-mode: both;
-    }
-</style>
+<script>
+    const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.5
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.remove('opacity-0', '-translate-x-24');
+                entry.target.classList.add('opacity-100', 'translate-x-0');
+            } else {
+                entry.target.classList.add('opacity-0', '-translate-x-24');
+                entry.target.classList.remove('opacity-100', 'translate-x-0');
+            }
+        });
+    }, observerOptions);
+
+    // Observar todos los items de experiencia
+    document.querySelectorAll('.experience-item').forEach(item => {
+        observer.observe(item);
+    });
+</script>
 
