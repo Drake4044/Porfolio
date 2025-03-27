@@ -60,6 +60,63 @@ import AstroIcon from "../icons/AstroIcon.astro"
     </div>
 </footer>
 
+<script>
+  document.addEventListener("astro:page-load", () => {
+    // Función para scroll suave personalizado
+    const smoothScroll = (target: Element, duration: number = 800) => {
+      const headerOffset = -30 // Offset para compensar el header
+      const targetPosition = target.getBoundingClientRect().top + window.scrollY - headerOffset
+      const startPosition = window.scrollY
+      const distance = targetPosition - startPosition
+      let startTime: number | null = null
+
+      const animation = (currentTime: number) => {
+        if (startTime === null) startTime = currentTime
+        const timeElapsed = currentTime - startTime
+        const progress = Math.min(timeElapsed / duration, 1)
+
+        // Función de easing para movimiento más natural
+        const easeInOutCubic = (t: number) => {
+          return t < 0.5
+            ? 4 * t * t * t
+            : 1 - Math.pow(-2 * t + 2, 3) / 2
+        }
+
+        window.scrollTo({
+          top: startPosition + (distance * easeInOutCubic(progress)),
+          behavior: 'auto'
+        })
+
+        if (progress < 1) {
+          requestAnimationFrame(animation)
+        }
+      }
+
+      requestAnimationFrame(animation)
+    }
+
+    // Aplicar scroll suave a los enlaces de navegación del footer
+    const footerNavLinks = document.querySelectorAll('footer a[href^="/#"]')
+    footerNavLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault()
+        const href = link.getAttribute("href")
+        if (href?.startsWith("/#")) {
+          const targetId = href.substring(2)
+          const targetElement = document.getElementById(targetId)
+          
+          if (targetElement) {
+            smoothScroll(targetElement)
+            history.pushState(null, "", href)
+          }
+        } else {
+          window.location.href = href || ""
+        }
+      })
+    })
+  })
+</script>
+
 <style>
     .text-shadow:hover {
     text-shadow: 1px 1px 5px rgb(255, 225, 0);

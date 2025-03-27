@@ -20,24 +20,31 @@ const navItems = [
     label: "sobre-mi",
     url: "/#sobre-mi",
   },
-  {
+]
+
+const contactItem = {
     title: "Contacto",
     label: "contacto",
     url: "mailto:martincastro4044@gmail.com",
-  },
-]
+}
 ---
 
-<header
-  class="fixed top-0 z-20 flex items-center justify-center w-full mx-auto mt-2"
->
-  <nav
-    class="flex px-3 text-sm font-medium rounded-full text-white-600/90 justify-center items-center sm:gap-x-10"
+<header class="fixed top-0 z-20 flex items-center justify-between w-[calc(100%-2rem)] md:w-auto mx-auto mt-2 px-4 mobile-header left-1/2 -translate-x-1/2" id="mobile-header">
+  <!-- Contacto (solo visible en móvil) -->
+  <a
+    href={contactItem.url}
+    class="relative md:hidden block px-2 py-2 transition text-sm font-medium text-white-600/90 contact-link"
+    aria-label={contactItem.label}
   >
+    {contactItem.title}
+  </a>
+
+  <!-- Navegación desktop ajustada -->
+  <nav class="hidden md:flex px-6 text-sm font-medium rounded-full text-white-600/90 justify-center items-center gap-x-6">
     {
-      navItems.map((link) => (
+      [...navItems, contactItem].map((link) => (
         <a
-          class="relative block px-2 py-2 transition hover:text-yellow-400 hover:text-shadow"
+          class="relative block px-2 py-2 transition hover:text-yellow-400 hover:text-shadow desktop-nav-link whitespace-nowrap"
           aria-label={link.label}
           href={link.url}
         >
@@ -46,64 +53,493 @@ const navItems = [
       ))
     }
   </nav>
+
+  <!-- Menú móvil actualizado -->
+  <div class="md:hidden">
+    <button
+      id="menu-toggle"
+      class="text-white p-2 focus:outline-none"
+      aria-label="Toggle menu"
+    >
+      <svg
+        id="menu-icon"
+        class="w-6 h-6"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M4 6h16M4 12h16M4 18h16"
+        />
+      </svg>
+    </button>
+
+    <nav
+      id="mobile-menu"
+      class="fixed right-[-100vw] top-[45px] w-[calc(100%-2rem)] shadow-lg transform transition-all duration-300 ease-in-out rounded-b-2xl border border-white/10 mobile-nav"
+    >
+      <div class="flex flex-col py-2">
+        {
+          navItems.map((link) => (
+            <a
+              class="relative px-4 py-3 transition text-sm font-medium text-white hover:text-yellow-400 hover:bg-white/5 first:rounded-t-none last:rounded-b-2xl mobile-menu-link"
+              aria-label={link.label}
+              href={link.url}
+            >
+              {link.title}
+            </a>
+          ))
+        }
+      </div>
+    </nav>
+  </div>
 </header>
 
 <script>
   document.addEventListener("astro:page-load", () => {
     const sections = document.querySelectorAll("section")
     const navItems = document.querySelectorAll("header nav a")
+    const menuToggle = document.getElementById("menu-toggle")
+    const mobileMenu = document.getElementById("mobile-menu")
+    const menuIcon = document.getElementById("menu-icon")
+    const header = document.getElementById("mobile-header")
 
-    const callback = (entries: any[]) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          navItems.forEach((item) => {
-            if (item.getAttribute("aria-label") == entry.target.id) {
-              item.classList.add("text-yellow-400")
-              item.classList.add("text-shadow")
-            } else {
-              item.classList.remove("text-yellow-400")
-              item.classList.remove("text-shadow")
-            }
-          })
+    // Función actualizada para cerrar el menú
+    const closeMenu = () => {
+      isMenuOpen = false
+      if (mobileMenu) {
+        mobileMenu.style.transform = "translateX(100vw)"
+        mobileMenu.classList.remove('menu-open')
+      }
+      if (menuIcon) {
+        menuIcon.innerHTML = `
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        `
+      }
+      if (header) {
+        header.classList.remove('header-expanded')
+      }
+    }
+
+    // Menú hamburguesa actualizado
+    let isMenuOpen = false
+    menuToggle?.addEventListener("click", (e) => {
+      e.stopPropagation()
+      isMenuOpen = !isMenuOpen
+      if (mobileMenu) {
+        if (isMenuOpen) {
+          mobileMenu.style.transform = "translateX(15px)"
+          mobileMenu.classList.add('menu-open')
+          header?.classList.add('header-expanded')
+        } else {
+          mobileMenu.style.transform = "translateX(100vw)"
+          mobileMenu.classList.remove('menu-open')
+          header?.classList.remove('header-expanded')
         }
+      }
+      if (menuIcon) {
+        if (isMenuOpen) {
+          menuIcon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          `
+        } else {
+          menuIcon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          `
+        }
+      }
+    })
+
+    // Cerrar menú al hacer click fuera
+    document.addEventListener("click", (e) => {
+      if (isMenuOpen && !mobileMenu?.contains(e.target as Node)) {
+        closeMenu()
+      }
+    })
+
+    // Prevenir que clicks dentro del menú lo cierren
+    mobileMenu?.addEventListener("click", (e) => {
+      e.stopPropagation()
+    })
+
+    // Función para scroll suave personalizado
+    const smoothScroll = (target: Element, duration: number = 800) => {
+      const headerOffset = -30 // Offset para compensar el header
+      const targetPosition = target.getBoundingClientRect().top + window.scrollY - headerOffset
+      const startPosition = window.scrollY
+      const distance = targetPosition - startPosition
+      let startTime: number | null = null
+
+      const animation = (currentTime: number) => {
+        if (startTime === null) startTime = currentTime
+        const timeElapsed = currentTime - startTime
+        const progress = Math.min(timeElapsed / duration, 1)
+
+        // Función de easing para movimiento más natural
+        const easeInOutCubic = (t: number) => {
+          return t < 0.5
+            ? 4 * t * t * t
+            : 1 - Math.pow(-2 * t + 2, 3) / 2
+        }
+
+        window.scrollTo({
+          top: startPosition + (distance * easeInOutCubic(progress)),
+          behavior: 'auto'
+        })
+
+        if (progress < 1) {
+          requestAnimationFrame(animation)
+        }
+      }
+
+      requestAnimationFrame(animation)
+    }
+
+    // Aplicar scroll suave a todos los enlaces de navegación (móvil y desktop)
+    const allNavLinks = document.querySelectorAll('#mobile-menu a, .desktop-nav-link')
+    allNavLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault()
+        const href = link.getAttribute("href")
+        if (href?.startsWith("/#")) {
+          const targetId = href.substring(2)
+          const targetElement = document.getElementById(targetId)
+          
+          if (targetElement) {
+            // Cerrar el menú móvil si está abierto
+            if (isMenuOpen) {
+              closeMenu()
+            }
+            
+            // Aplicar scroll suave
+            smoothScroll(targetElement)
+
+            // Actualizar la URL sin recargar la página
+            history.pushState(null, "", href)
+          }
+        } else {
+          window.location.href = href || ""
+        }
+      })
+    })
+
+    // Observer mejorado para las secciones
+    const callback = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry) => {
+        const targetId = entry.target.id
+        const correspondingLinks = document.querySelectorAll(`a[aria-label="${targetId}"]`)
+
+        correspondingLinks.forEach(link => {
+        if (entry.isIntersecting) {
+            // Añadir clases de manera más específica
+            if (!link.classList.contains('text-yellow-400')) {
+              link.classList.add('text-yellow-400')
+              link.classList.add('text-shadow')
+            }
+            
+            // Remover clases de los otros enlaces
+            document.querySelectorAll('header nav a').forEach(otherLink => {
+              if (otherLink !== link && otherLink.classList.contains('text-yellow-400')) {
+                otherLink.classList.remove('text-yellow-400', 'text-shadow')
+              }
+            })
+          } else if (!checkIfAnySectionIsVisible()) {
+            // Si ninguna sección está visible, remover las clases
+            link.classList.remove('text-yellow-400', 'text-shadow')
+          }
+        })
       })
     }
 
-    const observer = new IntersectionObserver(callback, {
-      root: null,
-      rootMargin: "0px",
-      threshold: 0.3,
-    })
+    // Función auxiliar mejorada para verificar si alguna sección está visible
+    const checkIfAnySectionIsVisible = () => {
+      const sections = document.querySelectorAll('section')
+      return Array.from(sections).some(section => {
+        const rect = section.getBoundingClientRect()
+        const windowHeight = window.innerHeight
+        const threshold = 0.3 // 30% de la altura de la ventana
 
-    sections.forEach((section) => {
+        // Verificar si la sección está visible en el viewport
+        return (
+          rect.top <= windowHeight * threshold &&
+          rect.bottom >= windowHeight * (1 - threshold)
+        )
+      })
+    }
+
+    // Configuración mejorada del observer
+    const observerOptions = {
+      root: null,
+      rootMargin: "-30% 0px -30% 0px", // Ajustado para ser más preciso
+      threshold: [0.2, 0.5, 0.8] // Múltiples umbrales para mejor detección
+    }
+
+    const observer = new IntersectionObserver(callback, observerOptions)
+
+    // Observar todas las secciones
+    document.querySelectorAll('section').forEach((section) => {
       observer.observe(section)
     })
 
-    // Cleanup function
-    document.onvisibilitychange = () => {
-      if (document.visibilityState === "hidden") {
-        observer.disconnect()
-      } else {
-        sections.forEach((section) => {
-          observer.observe(section)
-        })
+    // Función mejorada para actualizar enlaces activos al hacer scroll
+    const updateActiveLinks = () => {
+      const scrollPosition = window.scrollY + window.innerHeight * 0.5
+      const sections = document.querySelectorAll('section')
+      let activeSection: string | null = null
+
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop
+        const sectionHeight = section.offsetHeight
+        const sectionId = section.id
+
+        if (scrollPosition >= sectionTop && scrollPosition <= sectionTop + sectionHeight) {
+          activeSection = sectionId
+        }
+      })
+
+      // Actualizar los enlaces basado en la sección activa
+      document.querySelectorAll('header nav a').forEach(link => {
+        const linkLabel = link.getAttribute('aria-label')
+        if (linkLabel === activeSection) {
+          link.classList.add('text-yellow-400', 'text-shadow')
+        } else {
+          link.classList.remove('text-yellow-400', 'text-shadow')
+        }
+      })
+
+      // Caso especial para el enlace de inicio
+      const homeLink = document.querySelector('a[aria-label="top"]')
+      if (homeLink) {
+        if (window.scrollY < 100) { // Si estamos muy cerca del inicio
+          homeLink.classList.add('text-yellow-400', 'text-shadow')
+        } else if (activeSection) {
+          homeLink.classList.remove('text-yellow-400', 'text-shadow')
+        }
       }
+    }
+
+    // Añadir evento de scroll con throttling
+    let isScrolling = false
+    window.addEventListener('scroll', () => {
+      if (!isScrolling) {
+        window.requestAnimationFrame(() => {
+          updateActiveLinks()
+          isScrolling = false
+        })
+        isScrolling = true
+      }
+    })
+
+    // Observer para las secciones con animación
+    const sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const section = entry.target
+        
+        if (entry.isIntersecting) {
+          section.classList.add('section-visible')
+          section.classList.remove('section-hidden')
+        } else {
+          section.classList.remove('section-visible')
+          section.classList.add('section-hidden')
+        }
+      })
+    }, {
+      root: null,
+      rootMargin: '-10% 0px',
+      threshold: 0.1
+    })
+
+    // Observar todas las secciones con data-section
+    const animatedSections = document.querySelectorAll('[data-section]')
+    animatedSections.forEach((section) => {
+      section.classList.add('section-hidden') // Asegurar estado inicial
+      sectionObserver.observe(section)
+    })
+
+    // Cleanup mejorado
+    return () => {
+        observer.disconnect()
+      sectionObserver.disconnect()
+      window.removeEventListener('scroll', updateActiveLinks)
     }
   })
 </script>
 
 <style>
   .text-shadow {
-    text-shadow: 1px 1px 5px rgb(255, 225, 0);
+    text-shadow: 2px 2px 4px rgba(255, 225, 0, 0.7);
+    color: rgb(250, 204, 21);
   }
+  
+  /* Estilos para desktop */
+  @media (min-width: 768px) {
   nav {
     animation: nav-shadown linear both;
     animation-timeline: scroll();
     animation-range: 0 100px;
   }
+
   @keyframes nav-shadown {
     to {
       @apply shadow-lg ring-1 backdrop-blur [background:radial-gradient(125%_125%_at_50%_30%,#000_40%,#63e_100%)] ring-white/10;
     }
+    }
+
+    .desktop-nav-link {
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .desktop-nav-link:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Asegurar que el header esté centrado en desktop */
+    .mobile-header {
+      max-width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
+
+  /* Estilos para móvil */
+  @media (max-width: 767px) {
+    .mobile-header {
+      @apply shadow-lg ring-1 backdrop-blur bg-[radial-gradient(125%_125%_at_50%_30%,#000_40%,#63e_100%)] ring-white/10;
+      border-radius: 1rem;
+      width: calc(100% - 2rem);
+      left: 50%;
+      transform: translateX(-50%);
+      margin: 0.5rem auto 0;
+      position: fixed;
+    }
+  }
+
+  /* Actualizar estilos del menú móvil */
+  .mobile-nav {
+    @apply shadow-lg ring-1 bg-[radial-gradient(125%_125%_at_50%_30%,#000_40%,#63e_100%)] ring-white/10;
+    border-top-right-radius: 0;
+    border-top: none;
+    transform: translateX(100vw);
+    max-width: 12rem;
+    margin-top: -1px;
+    right: 0;
+    backdrop-filter: none;
+  }
+
+  /* Ajustar la posición cuando el menú está abierto */
+  .menu-open {
+    right: 4%;
+    border-top-right-radius: 0;
+    border-top: 0;
+    margin-top: 0;
+    transform: translateX(0);
+  }
+
+  /* Actualizar estilos del header cuando el menú está abierto */
+  .header-expanded {
+    border-bottom-right-radius: 0;
+  }
+
+  /* Simplificar el efecto de fusión */
+  .header-expanded.mobile-header {
+    border-bottom-right-radius: 0;
+  }
+
+  /* Asegurar que el contenedor del menú no tenga overflow visible */
+  .md:hidden {
+    overflow-x: hidden;
+  }
+
+  /* Añadir una línea separadora entre los items del menú */
+  #mobile-menu a:not(:last-child) {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Animación para el enlace de contacto */
+  .contact-link {
+    animation: contactPulse 2s infinite;
+  }
+
+  @keyframes contactPulse {
+    0% {
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow: none;
+    }
+    50% {
+      color: rgb(250, 204, 21);
+      text-shadow: 2px 2px 4px rgba(255, 225, 0, 0.7);
+    }
+    100% {
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow: none;
+    }
+  }
+
+  /* Mejorar las transiciones de los enlaces */
+  #mobile-menu a {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #mobile-menu a:hover {
+    transform: translateX(4px);
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  /* Animación para el enlace activo */
+  #mobile-menu a.text-yellow-400 {
+    color: rgb(250, 204, 21);
+    text-shadow: none;
+    font-weight: 500;
+  }
+
+  /* Quitar el scroll-behavior global para usar nuestra animación personalizada */
+  :global(html) {
+    scroll-behavior: auto;
+  }
+
+  /* Ajustar el padding superior de las secciones */
+  :global(section) {
+    scroll-margin-top: 100px;
+  }
+
+  /* Mejorar la legibilidad de los enlaces del menú móvil */
+  .mobile-menu-link {
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  /* Actualizar el estilo hover y activo */
+  .mobile-menu-link:hover,
+  .mobile-menu-link.text-yellow-400 {
+    color: rgb(250, 204, 21);
+    text-shadow: none;
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  /* Estilos para la animación de las secciones */
+  .section-animation {
+    transition: all 0.8s ease;
+  }
+
+  .section-hidden {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  .section-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Asegurar que las secciones tengan un estado inicial */
+  [data-section] {
+    will-change: opacity, transform;
   }
 </style>

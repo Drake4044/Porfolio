@@ -135,7 +135,7 @@ const PROJECTS = [
   const observerOptions = {
     root: null,
     rootMargin: '0px',
-    threshold: 0.5
+    threshold: [0.6, 0.1]
   };
 
   const observer = new IntersectionObserver((entries) => {
@@ -146,7 +146,7 @@ const PROJECTS = [
       const projectImage = article.querySelector('.project-image');
       const imageWrapper = article.querySelector('.image-container > div');
 
-      if (entry.isIntersecting) {
+      if (entry.intersectionRatio >= 0.6) {
         if (imageContainer) {
           imageContainer.classList.remove('translate-y-36', 'md:translate-x-60');
           if (window.innerWidth < 768) {
@@ -159,16 +159,20 @@ const PROJECTS = [
           contentContainer.classList.add('scale-100', 'md:scale-100', 'md:opacity-100');
         }
 
-        if (projectImage && window.innerWidth < 768) {
+        if (projectImage) {
           projectImage.classList.remove('scale-150');
           projectImage.classList.add('scale-100');
         }
 
-        if (imageWrapper && window.innerWidth < 768) {
-          imageWrapper.classList.remove('scale-75');
-          imageWrapper.classList.add('scale-100');
+        if (imageWrapper) {
+          if (window.innerWidth < 768) {
+            imageWrapper.classList.remove('scale-75');
+            imageWrapper.classList.add('scale-100');
+          } else {
+            imageWrapper.classList.add('scale-100');
+          }
         }
-      } else {
+      } else if (entry.intersectionRatio <= 0.1) {
         if (imageContainer) {
           imageContainer.classList.add('translate-y-36', 'md:translate-x-60');
           if (window.innerWidth < 768) {
@@ -181,14 +185,18 @@ const PROJECTS = [
           contentContainer.classList.remove('scale-100', 'md:scale-100', 'md:opacity-100');
         }
 
-        if (projectImage && window.innerWidth < 768) {
-          projectImage.classList.remove('scale-175');
+        if (projectImage) {
+          projectImage.classList.remove('scale-100');
           projectImage.classList.add('scale-150');
         }
 
-        if (imageWrapper && window.innerWidth < 768) {
-          imageWrapper.classList.remove('scale-100');
-          imageWrapper.classList.add('scale-75');
+        if (imageWrapper) {
+          if (window.innerWidth < 768) {
+            imageWrapper.classList.remove('scale-100');
+            imageWrapper.classList.add('scale-75');
+          } else {
+            imageWrapper.classList.remove('scale-100');
+          }
         }
       }
     });
