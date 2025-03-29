@@ -77,65 +77,143 @@ const PROJECTS = [
 
 <div class="flex flex-col gap-y-4">
   {
-    PROJECTS.map(({ image, title, description, tags, link, github }) => (
-    <article class="flex flex-col space-x-0 space-y-8 md:flex-row md:space-x-8 md:space-y-0 transition-all duration-100 p-4 project-card">
-      <div class="w-full md:w-[45%] z-10 translate-y-36 md:translate-y-0 md:translate-x-60 transition-all duration-500 image-container">
-        <div class="relative flex flex-col items-center w-full gap-8 transition duration-500 ease-in-out transform scale-75 md:scale-100 shadow-xl overflow-clip rounded-xl sm:rounded-xl md:shadow-2xl lg:border lg:border-gray-800">
-          <div class="w-full aspect-[4/3] overflow-hidden">
-            <img 
-              alt="photo project" 
-              class="object-cover object-top w-full h-full transition duration-500 scale-150 project-image" 
-              src={image} 
-            />
+    PROJECTS.map(({ image, title, description, tags, link, github }, index) => (
+      <>
+        <article class="flex flex-col space-x-0 space-y-8 md:flex-row md:space-x-8 md:space-y-0 transition-all duration-100 p-4 project-card">
+          <div class="w-full md:w-[45%] z-10 translate-y-36 md:translate-y-0 md:translate-x-60 transition-all duration-500 image-container">
+            <div class="relative flex flex-col items-center w-full gap-8 transition duration-500 ease-in-out transform scale-75 md:scale-100 shadow-xl overflow-clip rounded-xl sm:rounded-xl md:shadow-2xl lg:border lg:border-gray-800">
+              <div class="w-full aspect-[4/3] overflow-hidden">
+                <img 
+                  alt="photo project" 
+                  class="object-cover object-top w-full h-full transition duration-500 scale-150 project-image" 
+                  src={image} 
+                />
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div class="w-full md:w-1/2 md:max-w-lg -translate-y-56 md:-translate-y-0 scale-0 md:scale-50 md:opacity-0 md:-translate-x-56 content-container transition-all duration-1000">
-        <h3 class="text-2xl font-bold text-gray-200">
-          {title}
-        </h3>
-        <div class="flex flex-wrap mt-3 m-auto grid-rows-2]">
-          <ul class="grid grid-cols-3 xs:grid-cols-4 gap-2">
-            {tags.map((tag) => (
-              <li>
-                <span
-                  class={`flex justify-center items-center gap-x-2 rounded-full text-xs ${tag.class} py-1 px-2 `}
-                >
-                  <tag.icon class="size-5" />
-                  {tag.name}
-                </span>
-              </li>
-            ))}
-          </ul>
+          <div class="w-full md:w-1/2 md:max-w-lg -translate-y-56 md:-translate-y-0 scale-0 md:scale-50 md:opacity-0 md:-translate-x-56 content-container transition-all duration-1000">
+            <h3 class="text-2xl font-bold text-gray-200">
+              {title}
+            </h3>
+            <div class="flex flex-wrap mt-3 m-auto grid-rows-2]">
+              <ul class="grid grid-cols-3 xs:grid-cols-4 gap-2">
+                {tags.map((tag) => (
+                  <li>
+                    <span
+                      class={`flex justify-center items-center gap-x-2 rounded-full text-xs ${tag.class} py-1 px-2 `}
+                    >
+                      <tag.icon class="size-5" />
+                      {tag.name}
+                    </span>
+                  </li>
+                ))}
+              </ul>
 
-          <div class="mt-4 text-gray-300">{description}</div>
-          <footer class="flex items-end justify-start mt-4 gap-x-4">
-            {github && (
-              <LinkButton href={github}>
-                <GitHub class="size-6" />
-                Code
-              </LinkButton>
-            )}
-            {link && (
-              <LinkButton href={link}>
-                <Link class="size-4" />
-                Preview
-              </LinkButton>
-            )}
-          </footer>
-        </div>
-      </div>
-    </article>
+              <div class="mt-4 text-gray-300">{description}</div>
+              <footer class="flex items-end justify-start mt-4 gap-x-4">
+                {github && (
+                  <LinkButton href={github}>
+                    <GitHub class="size-6" />
+                    Code
+                  </LinkButton>
+                )}
+                {link && (
+                  <LinkButton href={link}>
+                    <Link class="size-4" />
+                    Preview
+                  </LinkButton>
+                )}
+              </footer>
+            </div>
+          </div>
+        </article>
+        
+        {index < PROJECTS.length - 1 && (
+          <div class="relative h-8 md:h-0">
+            <div class="project-arrow md:hidden absolute left-1/2 -translate-x-1/2 top-[25%] -translate-y-1/2">
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                class="icon icon-tabler icon-tabler-arrow-down" 
+                width="24" 
+                height="24" 
+                viewBox="0 0 24 24" 
+                stroke-width="2" 
+                stroke="currentColor" 
+                fill="none" 
+                stroke-linecap="round" 
+                stroke-linejoin="round"
+              >
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M12 5l0 14" />
+                <path d="M18 13l-6 6" />
+                <path d="M6 13l6 6" />
+              </svg>
+            </div>
+          </div>
+        )}
+      </>
     ))
   }
 </div>
+
+<style>
+  @keyframes floatingArrow {
+    0%, 100% { transform: translate(-50%, -50%); }
+    50% { transform: translate(-50%, calc(-50% + 10px)); }
+  }
+
+  @keyframes hideArrow {
+    0% { 
+      transform: translate(-50%, -50%);
+      opacity: 1;
+    }
+    50% { 
+      transform: translate(-50%, calc(-50% - 20px));
+      opacity: 0.5;
+    }
+    100% { 
+      transform: translate(-50%, calc(-50% - 30px));
+      opacity: 0;
+    }
+  }
+
+  @keyframes showArrow {
+    0% { 
+      transform: translate(-50%, calc(-50% - 30px));
+      opacity: 0;
+    }
+    50% { 
+      transform: translate(-50%, calc(-50% - 20px));
+      opacity: 0.5;
+    }
+    100% { 
+      transform: translate(-50%, -50%);
+      opacity: 1;
+    }
+  }
+
+  .project-arrow {
+    animation: floatingArrow 1.5s ease-in-out infinite;
+    color: rgb(250 204 21);
+    opacity: 1;
+    transition: none;
+  }
+
+  .project-arrow.hiding {
+    animation: hideArrow 0.8s ease-in-out forwards;
+  }
+
+  .project-arrow.showing {
+    animation: showArrow 0.8s ease-in-out forwards;
+  }
+</style>
 
 <script>
   const observerOptions = {
     root: null,
     rootMargin: '0px',
-    threshold: [0.6, 0.1]
+    threshold: [0.2, 0.1]
   };
 
   const observer = new IntersectionObserver((entries) => {
@@ -145,8 +223,17 @@ const PROJECTS = [
       const contentContainer = article.querySelector('.content-container');
       const projectImage = article.querySelector('.project-image');
       const imageWrapper = article.querySelector('.image-container > div');
+      const previousArrow = article.previousElementSibling?.querySelector('.project-arrow');
 
-      if (entry.intersectionRatio >= 0.6) {
+      if (entry.intersectionRatio >= 0.2 && entry.isIntersecting) {
+        if (previousArrow && previousArrow instanceof HTMLElement && !previousArrow.classList.contains('hiding')) {
+          previousArrow.classList.remove('showing');
+          previousArrow.classList.add('hiding');
+          setTimeout(() => {
+            previousArrow.style.display = 'none';
+          }, 800);
+        }
+
         if (imageContainer) {
           imageContainer.classList.remove('translate-y-36', 'md:translate-x-60');
           if (window.innerWidth < 768) {
@@ -172,7 +259,16 @@ const PROJECTS = [
             imageWrapper.classList.add('scale-100');
           }
         }
-      } else if (entry.intersectionRatio <= 0.1) {
+      } else if (entry.intersectionRatio <= 0.1 || !entry.isIntersecting) {
+        if (previousArrow && previousArrow instanceof HTMLElement) {
+          previousArrow.style.display = 'flex';
+          previousArrow.classList.remove('hiding');
+          previousArrow.classList.add('showing');
+          setTimeout(() => {
+            previousArrow.classList.remove('showing');
+          }, 800);
+        }
+
         if (imageContainer) {
           imageContainer.classList.add('translate-y-36', 'md:translate-x-60');
           if (window.innerWidth < 768) {
@@ -204,6 +300,31 @@ const PROJECTS = [
 
   document.querySelectorAll('.project-card').forEach(article => {
     observer.observe(article);
+  });
+
+  window.addEventListener('load', () => {
+    document.querySelectorAll('.project-card').forEach(article => {
+      const rect = article.getBoundingClientRect();
+      const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+      const previousArrow = article.previousElementSibling?.querySelector('.project-arrow');
+      
+      if (previousArrow && previousArrow instanceof HTMLElement) {
+        if (isVisible) {
+          previousArrow.classList.remove('showing');
+          previousArrow.classList.add('hiding');
+          setTimeout(() => {
+            previousArrow.style.display = 'none';
+          }, 800);
+        } else {
+          previousArrow.style.display = 'flex';
+          previousArrow.classList.remove('hiding');
+          previousArrow.classList.add('showing');
+          setTimeout(() => {
+            previousArrow.classList.remove('showing');
+          }, 800);
+        }
+      }
+    });
   });
 </script>
 

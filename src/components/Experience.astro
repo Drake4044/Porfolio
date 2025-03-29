@@ -19,31 +19,132 @@ const EXPERIENCE = [
 ]
 ---
 
-<ol class="relative border-s border-gray-200 dark:border-gray-700 ml-7">  
-    {
-        EXPERIENCE.map(experiencie => (
-            <li class="mb-10 ms-[1.05rem] experience-item opacity-0 -translate-x-24 transition-all duration-1000">
-                <ExperienceItem {...experiencie} />
-            </li>       
-        ))
-    }                
-</ol>
+<div class="relative">
+    <ol class="relative border-s border-gray-200 dark:border-gray-700 ml-7">  
+        {
+            EXPERIENCE.map((experiencie, index) => (
+                <>
+                    <li class="mb-10 ms-[1.05rem] experience-item opacity-0 -translate-x-24 transition-all duration-1000">
+                        <ExperienceItem {...experiencie} />
+                        {index < EXPERIENCE.length - 1 && (
+                            <div class="scroll-arrow md:hidden absolute left-1/2 -translate-x-1/2 flex justify-center" style="bottom: -2rem">
+                                <svg 
+                                    xmlns="http://www.w3.org/2000/svg" 
+                                    class="icon icon-tabler icon-tabler-arrow-down" 
+                                    width="24" 
+                                    height="24" 
+                                    viewBox="0 0 24 24" 
+                                    stroke-width="2" 
+                                    stroke="currentColor" 
+                                    fill="none" 
+                                    stroke-linecap="round" 
+                                    stroke-linejoin="round"
+                                >
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path d="M12 5l0 14" />
+                                    <path d="M18 13l-6 6" />
+                                    <path d="M6 13l6 6" />
+                                </svg>
+                            </div>
+                        )}
+                    </li>
+                </>
+            ))
+        }                
+    </ol>
+</div>
+
+<style>
+    @keyframes floatingArrow {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(10px); }
+    }
+
+    @keyframes hideArrow {
+        0% { 
+            opacity: 1;
+        }
+        50% { 
+            opacity: 0.5;
+        }
+        100% { 
+            opacity: 0;
+        }
+    }
+
+    @keyframes showArrow {
+        0% { 
+            opacity: 0;
+        }
+        50% { 
+            opacity: 0.5;
+        }
+        100% { 
+            opacity: 1;
+        }
+    }
+
+    .scroll-arrow {
+        animation: floatingArrow 1.5s ease-in-out infinite;
+        color: rgb(250 204 21);
+        opacity: 1;
+        transition: none;
+    }
+
+    .scroll-arrow.hiding {
+        animation: hideArrow 0.8s ease-in-out forwards;
+    }
+
+    .scroll-arrow.showing {
+        animation: showArrow 0.8s ease-in-out forwards;
+    }
+
+    @media (max-width: 768px) {
+        .scroll-arrow {
+            margin-bottom: 0;
+        }
+    }
+</style>
 
 <script>
     const observerOptions = {
         root: null,
         rootMargin: '0px',
-        threshold: 0.5
+        threshold: [0.5, 0.1]
     };
 
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.remove('opacity-0', '-translate-x-24');
-                entry.target.classList.add('opacity-100', 'translate-x-0');
-            } else {
-                entry.target.classList.add('opacity-0', '-translate-x-24');
-                entry.target.classList.remove('opacity-100', 'translate-x-0');
+            const item = entry.target;
+            const scrollArrow = document.querySelector('.scroll-arrow');
+
+            if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+                // Animación de apertura del ítem
+                item.classList.remove('opacity-0', '-translate-x-24');
+                item.classList.add('opacity-100', 'translate-x-0');
+
+                // Ocultar la flecha cuando el ítem se abre
+                if (scrollArrow instanceof HTMLElement && !scrollArrow.classList.contains('hiding')) {
+                    scrollArrow.classList.remove('showing');
+                    scrollArrow.classList.add('hiding');
+                    setTimeout(() => {
+                        scrollArrow.style.display = 'none';
+                    }, 800);
+                }
+            } else if (!entry.isIntersecting || entry.intersectionRatio <= 0.1) {
+                // Animación de cierre del ítem
+                item.classList.add('opacity-0', '-translate-x-24');
+                item.classList.remove('opacity-100', 'translate-x-0');
+
+                // Mostrar la flecha cuando el ítem se cierra
+                if (scrollArrow instanceof HTMLElement) {
+                    scrollArrow.style.display = 'flex';
+                    scrollArrow.classList.remove('hiding');
+                    scrollArrow.classList.add('showing');
+                    setTimeout(() => {
+                        scrollArrow.classList.remove('showing');
+                    }, 800);
+                }
             }
         });
     }, observerOptions);
@@ -51,6 +152,26 @@ const EXPERIENCE = [
     // Observar todos los items de experiencia
     document.querySelectorAll('.experience-item').forEach(item => {
         observer.observe(item);
+    });
+
+    // Verificar el estado inicial al cargar la página
+    window.addEventListener('load', () => {
+        const items = Array.from(document.querySelectorAll('.experience-item'));
+        const scrollArrow = document.querySelector('.scroll-arrow');
+
+        if (items.length >= 2 && scrollArrow instanceof HTMLElement) {
+            const nextItem = items[1];
+            const nextRect = nextItem.getBoundingClientRect();
+            const isNextVisible = nextRect.top < window.innerHeight * 0.5;
+
+            if (isNextVisible) {
+                scrollArrow.classList.add('hiding');
+                scrollArrow.style.display = 'none';
+            } else {
+                scrollArrow.style.display = 'flex';
+                scrollArrow.classList.remove('hiding');
+            }
+        }
     });
 </script>
 

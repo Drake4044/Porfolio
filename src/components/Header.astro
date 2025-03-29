@@ -167,8 +167,8 @@ const contactItem = {
 
     // Función para scroll suave personalizado
     const smoothScroll = (target: Element, duration: number = 800) => {
-      const headerOffset = -30 // Offset para compensar el header
-      const targetPosition = target.getBoundingClientRect().top + window.scrollY - headerOffset
+      const headerOffset = window.innerWidth >= 768 ? -100 : -80 // Offset ajustado para móvil y desktop
+      const targetPosition = target.getBoundingClientRect().top + window.scrollY + headerOffset
       const startPosition = window.scrollY
       const distance = targetPosition - startPosition
       let startTime: number | null = null
@@ -305,7 +305,7 @@ const contactItem = {
         const linkLabel = link.getAttribute('aria-label')
         if (linkLabel === activeSection) {
           link.classList.add('text-yellow-400', 'text-shadow')
-        } else {
+      } else {
           link.classList.remove('text-yellow-400', 'text-shadow')
         }
       })
@@ -505,7 +505,15 @@ const contactItem = {
 
   /* Ajustar el padding superior de las secciones */
   :global(section) {
-    scroll-margin-top: 100px;
+    scroll-margin-top: 80px;
+    padding-top: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    :global(section) {
+        scroll-margin-top: 100px;
+        padding-top: 2rem;
+    }
   }
 
   /* Mejorar la legibilidad de los enlaces del menú móvil */

@@ -16,7 +16,7 @@ import AboutMe from '../components/AboutMe.astro';
 
 <Layout title="Porfolio Martín Castro - Desarrollador y Programador Web Full Stack">
 	<main class="px-4">
-		<SectionContainer id="top" class="pt-28 sm:py-36 max-w-5xl mx-auto section-animation" data-section>
+		<SectionContainer id="top" class="py-4 mt-16 sm:py-0 max-w-5xl mx-auto section-animation relative" data-section>
 			<div class="flex gap-3 mb-4 pr-5">
 				<img
 					class="object-fill rounded-[3rem] w-36 h-40 md:w-40 md:h-48 p-1 md:p-3 ring-1 ring-black/70 [background:radial-gradient(125%_125%_at_50%_30%,#000_40%,#63e_100%)]"
@@ -54,21 +54,93 @@ import AboutMe from '../components/AboutMe.astro';
 				</SocialPill>
 			</nav>
 		</SectionContainer>
-		<SectionContainer id="experiencia" class="pt-28 mt-10" >
+
+		<!-- Contenedor para la flecha y el espacio entre secciones -->
+		<div class="relative h-16 md:h-0">
+			<div class="section-arrow md:hidden absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2">
+				<svg 
+					xmlns="http://www.w3.org/2000/svg" 
+					class="icon icon-tabler icon-tabler-arrow-down" 
+					width="24" 
+					height="24" 
+					viewBox="0 0 24 24" 
+					stroke-width="2" 
+					stroke="currentColor" 
+					fill="none" 
+					stroke-linecap="round" 
+					stroke-linejoin="round"
+				>
+					<path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+					<path d="M12 5l0 14" />
+					<path d="M18 13l-6 6" />
+					<path d="M6 13l6 6" />
+				</svg>
+			</div>
+		</div>
+
+		<SectionContainer id="experiencia" class="pt-6 md:pt-28 max-w-5xl mx-auto" >
 			<h2 class="text-3xl font-bold mb-8 flex items-center gap-x-3 " >
 				<WorkIcon class="size-8" />
 				Expeciencia
 			</h2>
 			<Experience/>
 		</SectionContainer>
-		<SectionContainer id="proyectos" class="pt-28 mt-10" >
+
+		<!-- Contenedor para la flecha entre experiencia y proyectos -->
+		<div class="relative h-20 md:h-0">
+			<div class="section-arrow md:hidden absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2">
+				<svg 
+					xmlns="http://www.w3.org/2000/svg" 
+					class="icon icon-tabler icon-tabler-arrow-down" 
+					width="24" 
+					height="24" 
+					viewBox="0 0 24 24" 
+					stroke-width="2" 
+					stroke="currentColor" 
+					fill="none" 
+					stroke-linecap="round" 
+					stroke-linejoin="round"
+				>
+					<path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+					<path d="M12 5l0 14" />
+					<path d="M18 13l-6 6" />
+					<path d="M6 13l6 6" />
+				</svg>
+			</div>
+		</div>
+
+		<SectionContainer id="proyectos" class="pt-8 md:pt-28 max-w-5xl mx-auto" >
 			<h2 class="text-3xl font-bold mb-8 flex items-center gap-x-3 " >
 				<CodeIcon class="size-8" />
 				Proyectos
 			</h2>
 			<Projects/>
 		</SectionContainer>
-		<SectionContainer id="sobre-mi" class="pt-28 mt-10" >
+
+		<!-- Contenedor para la flecha entre proyectos y sobre-mi -->
+		<div class="relative h-20 md:h-0">
+			<div class="section-arrow md:hidden absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2">
+				<svg 
+					xmlns="http://www.w3.org/2000/svg" 
+					class="icon icon-tabler icon-tabler-arrow-down" 
+					width="24" 
+					height="24" 
+					viewBox="0 0 24 24" 
+					stroke-width="2" 
+					stroke="currentColor" 
+					fill="none" 
+					stroke-linecap="round" 
+					stroke-linejoin="round"
+				>
+					<path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+					<path d="M12 5l0 14" />
+					<path d="M18 13l-6 6" />
+					<path d="M6 13l6 6" />
+				</svg>
+			</div>
+		</div>
+
+		<SectionContainer id="sobre-mi" class="pt-8 md:pt-28 max-w-5xl mx-auto" >
 			<h2 class="text-3xl font-bold mb-8 flex items-center gap-x-3 " >
 				<ProfileCheck class="size-8" />
 				Sobre mi
@@ -85,5 +157,108 @@ import AboutMe from '../components/AboutMe.astro';
 			transparent
 		);
 	}
+
+	@keyframes floatingArrow {
+        0%, 100% { transform: translate(-50%, -50%); }
+        50% { transform: translate(-50%, calc(-50% + 10px)); }
+    }
+
+    @keyframes hideArrow {
+        0% { 
+            transform: translate(-50%, -50%);
+            opacity: 1;
+        }
+        50% { 
+            transform: translate(-50%, calc(-50% - 20px));
+            opacity: 0.5;
+        }
+        100% { 
+            transform: translate(-50%, calc(-50% - 30px));
+            opacity: 0;
+        }
+    }
+
+    @keyframes showArrow {
+        0% { 
+            transform: translate(-50%, calc(-50% - 30px));
+            opacity: 0;
+        }
+        50% { 
+            transform: translate(-50%, calc(-50% - 20px));
+            opacity: 0.5;
+        }
+        100% { 
+            transform: translate(-50%, -50%);
+            opacity: 1;
+        }
+    }
+
+    .section-arrow {
+        animation: floatingArrow 1.5s ease-in-out infinite;
+        color: rgb(250 204 21);
+        opacity: 1;
+        transition: none;
+    }
+
+    .section-arrow.hiding {
+        animation: hideArrow 0.8s ease-in-out forwards;
+    }
+
+    .section-arrow.showing {
+        animation: showArrow 0.8s ease-in-out forwards;
+    }
 </style>
+
+<script>
+	// Control dinámico de todas las flechas entre secciones
+    const sectionArrows = document.querySelectorAll('.section-arrow');
+    const hiddenStates = new Map();
+
+    sectionArrows.forEach((arrow, index) => {
+        if (arrow instanceof HTMLElement) {
+            hiddenStates.set(arrow, false);
+            
+            const checkArrowVisibility = () => {
+                const sections = Array.from(document.querySelectorAll('section'));
+                if (index >= sections.length - 1) return;
+
+                const currentSection = sections[index];
+                const nextSection = sections[index + 1];
+                
+                if (currentSection && nextSection) {
+                    const currentRect = currentSection.getBoundingClientRect();
+                    const nextRect = nextSection.getBoundingClientRect();
+                    
+                    // Calcular el porcentaje visible de la siguiente sección
+                    const nextSectionVisiblePercentage = (window.innerHeight - nextRect.top) / window.innerHeight * 100;
+                    const isHidden = hiddenStates.get(arrow);
+                    
+                    if (nextSectionVisiblePercentage >= 40 && !isHidden) {
+                        hiddenStates.set(arrow, true);
+                        arrow.classList.remove('showing');
+                        arrow.classList.add('hiding');
+                        setTimeout(() => {
+                            arrow.style.display = 'none';
+                        }, 800);
+                    } else if (nextSectionVisiblePercentage < 40 && isHidden) {
+                        arrow.style.display = 'flex';
+                        arrow.classList.remove('hiding');
+                        arrow.classList.add('showing');
+                        setTimeout(() => {
+                            arrow.classList.remove('showing');
+                        }, 800);
+                        hiddenStates.set(arrow, false);
+                    }
+                }
+            };
+
+            window.addEventListener('scroll', () => {
+                requestAnimationFrame(() => checkArrowVisibility());
+            });
+
+            // Verificar al cargar la página
+            checkArrowVisibility();
+        }
+    });
+</script>
 
