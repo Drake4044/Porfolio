@@ -64,8 +64,11 @@ import AstroIcon from "../icons/AstroIcon.astro"
   document.addEventListener("astro:page-load", () => {
     // Función para scroll suave personalizado
     const smoothScroll = (target: Element, duration: number = 800) => {
-      const headerOffset = -30 // Offset para compensar el header
-      const targetPosition = target.getBoundingClientRect().top + window.scrollY - headerOffset
+      const headerHeight = document.getElementById('mobile-header')?.offsetHeight || 0;
+      const isDesktop = window.innerWidth >= 768;
+      const isHomeSection = target.id === 'top';
+      const extraOffset = isDesktop && !isHomeSection ? 80 : 0; // Solo aplicar offset en desktop y no en inicio
+      const targetPosition = target.getBoundingClientRect().top + window.scrollY - headerHeight + extraOffset;
       const startPosition = window.scrollY
       const distance = targetPosition - startPosition
       let startTime: number | null = null

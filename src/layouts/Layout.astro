@@ -15,11 +15,29 @@ const { title } = Astro.props;
 <html lang="es">
 	<head>
 		<meta charset="UTF-8" />
-		<meta property="og:image" content="/pictures/main.webp" />
-		<meta name="description" content="Astro description" />
+		<meta name="description" content="Porfolio de Martin Castro - Desarrollador y Programador Web Full Stack con experiencia en crear soluciones digitales y eficientes." />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
+		
+		<!-- Open Graph / Facebook -->
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content="https://porfolio-martin-castro.netlify.app/" />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content="¡Hola! Soy Martin Castro, Desarrollador Web Full Stack con experiencia en crear soluciones digitales y eficientes. Transformo ideas en sitios funcionales." />
+		<meta property="og:image" content="https://porfolio-martin-castro.netlify.app/opengraph.jpg" />
+		<meta property="og:image:alt" content="Martin Castro - Desarrollador Web Full Stack" />
+		<meta property="og:site_name" content="Portfolio Martin Castro" />
+		<meta property="og:locale" content="es_ES" />
+
+		<!-- Twitter -->
+		<meta property="twitter:card" content="summary_large_image" />
+		<meta property="twitter:url" content="https://porfolio-martin-castro.netlify.app/" />
+		<meta property="twitter:title" content={title} />
+		<meta property="twitter:description" content="¡Hola! Soy Martin Castro, Desarrollador Web Full Stack con experiencia en crear soluciones digitales y eficientes. Transformo ideas en sitios funcionales." />
+		<meta property="twitter:image" content="https://porfolio-martin-castro.netlify.app/opengraph.jpg" />
+		<meta property="twitter:image:alt" content="Martin Castro - Desarrollador Web Full Stack" />
+
 		<title>{title}</title>
 		<ViewTransitions />
 	</head>

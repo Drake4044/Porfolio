@@ -60,7 +60,11 @@ const PROJECTS = [
       "Sitio web moderno y eficiente para los fanáticos de Pokémon. Su principal función es proporcionar información detallada sobre Pokémon, utilizando su API oficial. La aplicación está diseñada para ofrecer una experiencia de usuario fluida y completa en información. Además de la posibilidad de crear a tu propio Pokémon personalizable!!",
     link: "",
     github: "https://github.com/Drake4044/PI-Henry-Pokemons",
-    image: "/projects/pokemon/pokemon-1.webp",
+    images: [
+      "/projects/pokemon/pokemon-1.webp",
+      "/projects/pokemon/pokemon-2.webp",
+      "/projects/pokemon/pokemon-3.webp"
+    ],
     tags: [TAGS.JAVASCRIPT, TAGS.HTML, TAGS.CSS, TAGS.REACT, TAGS.REDUX, TAGS.EXPRESS, TAGS.SEQUELIZE],
   },
   {
@@ -69,7 +73,11 @@ const PROJECTS = [
       "Aplicación web interactiva desarrollada en JavaScript que permite a los usuarios disfrutar del icónico juego de Tetris directamente desde su navegador. Diseñada con una interfaz intuitiva y controles sencillos, esta app ofrece una experiencia de juego fiel al clásico Tetris.",
     link: "",
     github: "https://github.com/Drake4044/Tetris-Game",
-    image: "/projects/tetris/tetris-1.webp",
+    images: [
+      "/projects/tetris/tetris-1.webp",
+      "/projects/tetris/tetris-2.webp",
+      "/projects/tetris/tetris-3.webp"
+    ],
     tags: [TAGS.JAVASCRIPT, TAGS.HTML, TAGS.CSS],
   },
 ]
@@ -77,60 +85,88 @@ const PROJECTS = [
 
 <div class="flex flex-col gap-y-4">
   {
-    PROJECTS.map(({ image, title, description, tags, link, github }, index) => (
+    PROJECTS.map(({ images, title, description, tags, link, github }, index) => (
       <>
         <article class="flex flex-col space-x-0 space-y-8 md:flex-row md:space-x-8 md:space-y-0 transition-all duration-100 p-4 project-card">
           <div class="w-full md:w-[45%] z-10 translate-y-36 md:translate-y-0 md:translate-x-60 transition-all duration-500 image-container">
             <div class="relative flex flex-col items-center w-full gap-8 transition duration-500 ease-in-out transform scale-75 md:scale-100 shadow-xl overflow-clip rounded-xl sm:rounded-xl md:shadow-2xl lg:border lg:border-gray-800">
               <div class="w-full aspect-[4/3] overflow-hidden">
-                <img 
-                  alt="photo project" 
-                  class="object-cover object-top w-full h-full transition duration-500 scale-150 project-image" 
-                  src={image} 
-                />
+                <div class="carousel-container w-full h-full relative bg-black/10">
+                  <div class="carousel-track w-full h-full flex transition-transform duration-300 ease-in-out">
+                    {images.map((image, imgIndex) => (
+                      <div class="carousel-slide min-w-full h-full flex items-center justify-center">
+                        <img 
+                          alt={`${title} - imagen ${imgIndex + 1}`} 
+                          class="w-full h-full object-contain transition duration-500 project-image" 
+                          src={image} 
+                          data-index={imgIndex}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <!-- Navigation buttons -->
+                  <button class="carousel-button carousel-button-prev absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-2 opacity-0 transition-opacity duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M15 18l-6-6 6-6"/>
+                    </svg>
+                  </button>
+                  <button class="carousel-button carousel-button-next absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-2 opacity-0 transition-opacity duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M9 18l6-6-6-6"/>
+                    </svg>
+                  </button>
+                  
+                  <!-- Dots indicator -->
+                  <div class="carousel-dots absolute bottom-2 left-1/2 -translate-x-1/2 flex space-x-2">
+                    {images.map((_, dotIndex) => (
+                      <button class="carousel-dot w-2 h-2 rounded-full bg-white/50 transition-colors duration-300" data-index={dotIndex}></button>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           <div class="w-full md:w-1/2 md:max-w-lg -translate-y-56 md:-translate-y-0 scale-0 md:scale-50 md:opacity-0 md:-translate-x-56 content-container transition-all duration-1000">
-            <h3 class="text-2xl font-bold text-gray-200">
-              {title}
-            </h3>
-            <div class="flex flex-wrap mt-3 m-auto grid-rows-2]">
-              <ul class="grid grid-cols-3 xs:grid-cols-4 gap-2">
-                {tags.map((tag) => (
-                  <li>
-                    <span
-                      class={`flex justify-center items-center gap-x-2 rounded-full text-xs ${tag.class} py-1 px-2 `}
-                    >
-                      <tag.icon class="size-5" />
-                      {tag.name}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+    <h3 class="text-2xl font-bold text-gray-200">
+      {title}
+    </h3>
+    <div class="flex flex-wrap mt-3 m-auto grid-rows-2]">
+      <ul class="grid grid-cols-3 xs:grid-cols-4 gap-2">
+          {tags.map((tag) => (
+            <li>
+              <span
+                class={`flex justify-center items-center gap-x-2 rounded-full text-xs ${tag.class} py-1 px-2 `}
+              >
+                <tag.icon class="size-5" />
+                {tag.name}
+              </span>
+            </li>
+          ))}
+        </ul>
 
-              <div class="mt-4 text-gray-300">{description}</div>
-              <footer class="flex items-end justify-start mt-4 gap-x-4">
-                {github && (
-                  <LinkButton href={github}>
-                    <GitHub class="size-6" />
-                    Code
-                  </LinkButton>
-                )}
-                {link && (
-                  <LinkButton href={link}>
-                    <Link class="size-4" />
-                    Preview
-                  </LinkButton>
-                )}
-              </footer>
-            </div>
-          </div>
-        </article>
+      <div class="mt-4 text-gray-300">{description}</div>
+      <footer class="flex items-end justify-start mt-4 gap-x-4">
+          {github && (
+            <LinkButton href={github}>
+              <GitHub class="size-6" />
+              Code
+            </LinkButton>
+          )}
+          {link && (
+            <LinkButton href={link}>
+              <Link class="size-4" />
+              Preview
+            </LinkButton>
+          )}
+        </footer>
+    </div>
+  </div>
+</article>
         
         {index < PROJECTS.length - 1 && (
-          <div class="relative h-8 md:h-0">
+          <div class="relative h-8 md:h-0 my-10">
             <div class="project-arrow md:hidden absolute left-1/2 -translate-x-1/2 top-[25%] -translate-y-1/2">
               <svg 
                 xmlns="http://www.w3.org/2000/svg" 
@@ -207,13 +243,54 @@ const PROJECTS = [
   .project-arrow.showing {
     animation: showArrow 0.8s ease-in-out forwards;
   }
+
+  /* Carousel styles */
+  .carousel-container {
+    touch-action: none;
+    cursor: grab;
+    user-select: none;
+  }
+
+  .carousel-track {
+    will-change: transform;
+    transform: translateX(0);
+    transition: transform 0.3s ease-out;
+  }
+
+  .carousel-slide {
+    flex-shrink: 0;
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  .carousel-dot {
+    width: 8px;
+    height: 8px;
+    transition: all 0.3s ease;
+  }
+
+  .carousel-dot.active {
+    background-color: rgb(250 204 21);
+    transform: scale(1.2);
+  }
+
+  .project-card:hover .carousel-button {
+    opacity: 1;
+  }
+
+  .grabbing {
+    cursor: grabbing !important;
+  }
+
+  .project-image {
+    pointer-events: none;
+  }
 </style>
 
 <script>
   const observerOptions = {
     root: null,
     rootMargin: '0px',
-    threshold: [0.2, 0.1]
+    threshold: [0.6, 0.1]
   };
 
   const observer = new IntersectionObserver((entries) => {
@@ -225,7 +302,7 @@ const PROJECTS = [
       const imageWrapper = article.querySelector('.image-container > div');
       const previousArrow = article.previousElementSibling?.querySelector('.project-arrow');
 
-      if (entry.intersectionRatio >= 0.2 && entry.isIntersecting) {
+      if (entry.intersectionRatio >= 0.6 && entry.isIntersecting) {
         if (previousArrow && previousArrow instanceof HTMLElement && !previousArrow.classList.contains('hiding')) {
           previousArrow.classList.remove('showing');
           previousArrow.classList.add('hiding');
@@ -326,10 +403,138 @@ const PROJECTS = [
       }
     });
   });
+
+  // Carousel functionality
+  document.querySelectorAll('.carousel-container').forEach(carousel => {
+    let track = carousel.querySelector('.carousel-track');
+    if (!track) return;
+
+    let isDragging = false;
+    let startPos = 0;
+    let currentTranslate = 0;
+    let currentIndex = 0;
+    let prevTranslate = 0;
+    let animationID = 0;
+
+    const slides = carousel.querySelectorAll('.carousel-slide');
+    const dots = carousel.querySelectorAll('.carousel-dot');
+    const prevButton = carousel.querySelector('.carousel-button-prev');
+    const nextButton = carousel.querySelector('.carousel-button-next');
+
+    // Prevent image dragging
+    carousel.querySelectorAll('img').forEach(img => {
+      img.addEventListener('dragstart', (e) => e.preventDefault());
+    });
+
+    function setPositionByIndex() {
+      currentTranslate = currentIndex * -100;
+      prevTranslate = currentTranslate;
+      setSliderPosition();
+    }
+
+    function setSliderPosition() {
+      if (!track) return;
+      track.style.transform = `translateX(${currentTranslate}%)`;
+      
+      // Update dots
+      dots.forEach((dot, index) => {
+        dot.classList.toggle('active', index === currentIndex);
+      });
+    }
+
+    function getPositionX(event) {
+      return event.type.includes('mouse') ? event.pageX : event.touches[0].clientX;
+    }
+
+    function touchStart(event) {
+      startPos = getPositionX(event);
+      isDragging = true;
+      animationID = requestAnimationFrame(animation);
+      if (track) track.classList.add('grabbing');
+    }
+
+    function touchMove(event) {
+      if (isDragging) {
+        const currentPosition = getPositionX(event);
+        const diff = (currentPosition - startPos) * 100 / carousel.offsetWidth;
+        currentTranslate = prevTranslate + diff;
+      }
+    }
+
+    function touchEnd() {
+      isDragging = false;
+      cancelAnimationFrame(animationID);
+      if (track) track.classList.remove('grabbing');
+
+      const movedBy = currentTranslate - prevTranslate;
+      
+      // Minimum distance for swipe
+      if (Math.abs(movedBy) > 20) {
+        if (movedBy < 0 && currentIndex < slides.length - 1) {
+          currentIndex += 1;
+        }
+        if (movedBy > 0 && currentIndex > 0) {
+          currentIndex -= 1;
+        }
+      }
+
+      setPositionByIndex();
+    }
+
+    function animation() {
+      setSliderPosition();
+      if (isDragging) requestAnimationFrame(animation);
+    }
+
+    // Event listeners
+    if (track) {
+      track.addEventListener('mousedown', touchStart);
+      track.addEventListener('touchstart', touchStart);
+      track.addEventListener('mousemove', touchMove);
+      track.addEventListener('touchmove', touchMove);
+      track.addEventListener('mouseup', touchEnd);
+      track.addEventListener('touchend', touchEnd);
+      track.addEventListener('mouseleave', touchEnd);
+    }
+
+    // Navigation buttons
+    if (prevButton) {
+      prevButton.addEventListener('click', () => {
+        if (currentIndex > 0) {
+          currentIndex -= 1;
+          setPositionByIndex();
+        }
+      });
+    }
+
+    if (nextButton) {
+      nextButton.addEventListener('click', () => {
+        if (currentIndex < slides.length - 1) {
+          currentIndex += 1;
+          setPositionByIndex();
+        }
+      });
+    }
+
+    // Dot navigation
+    dots.forEach((dot, index) => {
+      dot.addEventListener('click', () => {
+        currentIndex = index;
+        setPositionByIndex();
+      });
+    });
+
+    // Initialize position
+    setPositionByIndex();
+  });
 </script>
 
 <style>
   .scale-175 {
     transform: scale(1.75);
+  }
+  
+  .grabbing {
+    cursor: grabbing;
   }
 </style>

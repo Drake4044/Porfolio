@@ -167,8 +167,11 @@ const contactItem = {
 
     // Función para scroll suave personalizado
     const smoothScroll = (target: Element, duration: number = 800) => {
-      const headerOffset = window.innerWidth >= 768 ? -100 : -80 // Offset ajustado para móvil y desktop
-      const targetPosition = target.getBoundingClientRect().top + window.scrollY + headerOffset
+      const headerHeight = document.getElementById('mobile-header')?.offsetHeight || 0;
+      const isDesktop = window.innerWidth >= 768;
+      const isHomeSection = target.id === 'top';
+      const extraOffset = isDesktop && !isHomeSection ? 80 : 0; // Solo aplicar offset en desktop y no en inicio
+      const targetPosition = target.getBoundingClientRect().top + window.scrollY - headerHeight + extraOffset;
       const startPosition = window.scrollY
       const distance = targetPosition - startPosition
       let startTime: number | null = null
@@ -505,14 +508,14 @@ const contactItem = {
 
   /* Ajustar el padding superior de las secciones */
   :global(section) {
-    scroll-margin-top: 80px;
+    scroll-margin-top: 60px;
     padding-top: 1rem;
   }
 
   @media (min-width: 768px) {
     :global(section) {
-        scroll-margin-top: 100px;
-        padding-top: 2rem;
+        scroll-margin-top: 80px;
+        padding-top: 1.5rem;
     }
   }
 

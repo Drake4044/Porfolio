@@ -3,11 +3,11 @@ import ExperienceItem from "./ExperienceItem.astro"
 
 const EXPERIENCE = [
     {
-        title: "JavaScript Developer",
-        company: "Coder House",
+        title: "Frontend Developer / QA Tester",
+        company: "Carta AI",
         description: 
-        "Fundamentos avanzados del lenguaje de programación más usado en la actualidad. jQuery, AJAX, Librerías, Frameworks y mas.",
-        date: "Mayo 2022"
+        "Implementé el Front-End de su landing page, panel admin y tambien su e-commerce, realizando testing de flujos y mejoras UX/UI, aumentando la eficiencia operativa y la conversión digital.",
+        date: "Febrero - Abril 2025"
     },
     {
         title: "Full Stack Developer",
@@ -16,18 +16,25 @@ const EXPERIENCE = [
         "Estudio intensivo como Programador / Desarrollador Web Full Stack utilizando tecnologías como: HTML, CSS, JavaScript, React, Redux, PostgreSQL, Node.js, Express y MySQL.",
         date: "Enero 2023"
     },
+    {
+        title: "JavaScript Developer",
+        company: "Coder House",
+        description: 
+        "Fundamentos avanzados del lenguaje de programación más usado en la actualidad. jQuery, AJAX, Librerías, Frameworks y mas.",
+        date: "Mayo 2022"
+    },
 ]
 ---
 
 <div class="relative">
-    <ol class="relative border-s border-gray-200 dark:border-gray-700 ml-7">  
+    <ol class="relative border-s border-gray-200 dark:border-gray-700 ml-5">  
         {
             EXPERIENCE.map((experiencie, index) => (
                 <>
                     <li class="mb-10 ms-[1.05rem] experience-item opacity-0 -translate-x-24 transition-all duration-1000">
                         <ExperienceItem {...experiencie} />
                         {index < EXPERIENCE.length - 1 && (
-                            <div class="scroll-arrow md:hidden absolute left-1/2 -translate-x-1/2 flex justify-center" style="bottom: -2rem">
+                            <div class="scroll-arrow md:hidden absolute left-1/2 -translate-x-1/2 flex justify-center" style="bottom: -2rem" data-index={index}>
                                 <svg 
                                     xmlns="http://www.w3.org/2000/svg" 
                                     class="icon icon-tabler icon-tabler-arrow-down" 
@@ -116,19 +123,20 @@ const EXPERIENCE = [
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             const item = entry.target;
-            const scrollArrow = document.querySelector('.scroll-arrow');
+            const itemIndex = Array.from(document.querySelectorAll('.experience-item')).indexOf(item);
+            const prevArrow = document.querySelector(`.scroll-arrow[data-index="${itemIndex - 1}"]`);
 
             if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
                 // Animación de apertura del ítem
                 item.classList.remove('opacity-0', '-translate-x-24');
                 item.classList.add('opacity-100', 'translate-x-0');
 
-                // Ocultar la flecha cuando el ítem se abre
-                if (scrollArrow instanceof HTMLElement && !scrollArrow.classList.contains('hiding')) {
-                    scrollArrow.classList.remove('showing');
-                    scrollArrow.classList.add('hiding');
+                // Ocultar la flecha del ítem anterior cuando este ítem se abre
+                if (prevArrow instanceof HTMLElement && !prevArrow.classList.contains('hiding')) {
+                    prevArrow.classList.remove('showing');
+                    prevArrow.classList.add('hiding');
                     setTimeout(() => {
-                        scrollArrow.style.display = 'none';
+                        prevArrow.style.display = 'none';
                     }, 800);
                 }
             } else if (!entry.isIntersecting || entry.intersectionRatio <= 0.1) {
@@ -136,13 +144,13 @@ const EXPERIENCE = [
                 item.classList.add('opacity-0', '-translate-x-24');
                 item.classList.remove('opacity-100', 'translate-x-0');
 
-                // Mostrar la flecha cuando el ítem se cierra
-                if (scrollArrow instanceof HTMLElement) {
-                    scrollArrow.style.display = 'flex';
-                    scrollArrow.classList.remove('hiding');
-                    scrollArrow.classList.add('showing');
+                // Mostrar la flecha del ítem anterior cuando este ítem se cierra
+                if (prevArrow instanceof HTMLElement) {
+                    prevArrow.style.display = 'flex';
+                    prevArrow.classList.remove('hiding');
+                    prevArrow.classList.add('showing');
                     setTimeout(() => {
-                        scrollArrow.classList.remove('showing');
+                        prevArrow.classList.remove('showing');
                     }, 800);
                 }
             }
@@ -157,21 +165,21 @@ const EXPERIENCE = [
     // Verificar el estado inicial al cargar la página
     window.addEventListener('load', () => {
         const items = Array.from(document.querySelectorAll('.experience-item'));
-        const scrollArrow = document.querySelector('.scroll-arrow');
+        items.forEach((item, index) => {
+            const rect = item.getBoundingClientRect();
+            const isVisible = rect.top < window.innerHeight * 0.5;
+            const prevArrow = document.querySelector(`.scroll-arrow[data-index="${index - 1}"]`);
 
-        if (items.length >= 2 && scrollArrow instanceof HTMLElement) {
-            const nextItem = items[1];
-            const nextRect = nextItem.getBoundingClientRect();
-            const isNextVisible = nextRect.top < window.innerHeight * 0.5;
-
-            if (isNextVisible) {
-                scrollArrow.classList.add('hiding');
-                scrollArrow.style.display = 'none';
-            } else {
-                scrollArrow.style.display = 'flex';
-                scrollArrow.classList.remove('hiding');
+            if (prevArrow instanceof HTMLElement) {
+                if (isVisible) {
+                    prevArrow.classList.add('hiding');
+                    prevArrow.style.display = 'none';
+                } else {
+                    prevArrow.style.display = 'flex';
+                    prevArrow.classList.remove('hiding');
+                }
             }
-        }
+        });
     });
 </script>
 
