@@ -433,8 +433,8 @@ const PROJECTS = [
     }
 
     function setSliderPosition() {
-      if (!track) return;
-      track.style.transform = `translateX(${currentTranslate}%)`;
+     // if (!track) return;
+     // track.style.transform = `translateX(${currentTranslate}%)`;
       
       // Update dots
       dots.forEach((dot, index) => {
@@ -442,24 +442,24 @@ const PROJECTS = [
       });
     }
 
-    function getPositionX(event) {
-      return event.type.includes('mouse') ? event.pageX : event.touches[0].clientX;
-    }
+    // function getPositionX(event) {
+    //  return event.type.includes('mouse') ? event.pageX : event.touches[0].clientX;
+    //}
 
-    function touchStart(event) {
-      startPos = getPositionX(event);
-      isDragging = true;
-      animationID = requestAnimationFrame(animation);
-      if (track) track.classList.add('grabbing');
-    }
+   // function touchStart(event) {
+   //   startPos = getPositionX(event);
+   //   isDragging = true;
+   //   animationID = requestAnimationFrame(animation);
+   //   if (track) track.classList.add('grabbing');
+   // }
 
-    function touchMove(event) {
-      if (isDragging) {
-        const currentPosition = getPositionX(event);
-        const diff = (currentPosition - startPos) * 100 / carousel.offsetWidth;
-        currentTranslate = prevTranslate + diff;
-      }
-    }
+ //   function touchMove(event) {
+ //     if (isDragging) {
+ //       const currentPosition = getPositionX(event);
+ //       const diff = (currentPosition - startPos) * 100 / carousel.offsetWidth;
+ //       currentTranslate = prevTranslate + diff;
+ //     }
+ //   }
 
     function touchEnd() {
       isDragging = false;
@@ -488,13 +488,13 @@ const PROJECTS = [
 
     // Event listeners
     if (track) {
-      track.addEventListener('mousedown', touchStart);
-      track.addEventListener('touchstart', touchStart);
-      track.addEventListener('mousemove', touchMove);
-      track.addEventListener('touchmove', touchMove);
-      track.addEventListener('mouseup', touchEnd);
-      track.addEventListener('touchend', touchEnd);
-      track.addEventListener('mouseleave', touchEnd);
+    //  track.addEventListener('mousedown', touchStart);
+    //  track.addEventListener('touchstart', touchStart);
+    //  track.addEventListener('mousemove', touchMove);
+    //  track.addEventListener('touchmove', touchMove);
+    //  track.addEventListener('mouseup', touchEnd);
+    //  track.addEventListener('touchend', touchEnd);
+    //  track.addEventListener('mouseleave', touchEnd);
     }
 
     // Navigation buttons
