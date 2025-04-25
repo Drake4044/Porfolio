@@ -434,7 +434,7 @@ const PROJECTS = [
 
     function setSliderPosition() {
       if (!track) return;
-      track.style.transform = `translateX(${currentTranslate}%)`;
+      (track as HTMLElement).style.transform = `translateX(${currentTranslate}%)`;
       
       // Update dots
       dots.forEach((dot, index) => {
@@ -442,21 +442,21 @@ const PROJECTS = [
       });
     }
 
-    function getPositionX(event) {
-      return event.type.includes('mouse') ? event.pageX : event.touches[0].clientX;
+    function getPositionX(event: Event) {
+      return event.type.includes('mouse') ? (event as MouseEvent).pageX : (event as TouchEvent).touches[0].clientX;
     }
 
-    function touchStart(event) {
+    function touchStart(event: Event) {
       startPos = getPositionX(event);
       isDragging = true;
       animationID = requestAnimationFrame(animation);
       if (track) track.classList.add('grabbing');
     }
 
-    function touchMove(event) {
+    function touchMove(event: Event) {
       if (isDragging) {
         const currentPosition = getPositionX(event);
-        const diff = (currentPosition - startPos) * 100 / carousel.offsetWidth;
+        const diff = (currentPosition - startPos) * 100 / (carousel as HTMLElement).offsetWidth;
         currentTranslate = prevTranslate + diff;
       }
     }
@@ -488,13 +488,13 @@ const PROJECTS = [
 
     // Event listeners
     if (track) {
-      track.addEventListener('mousedown', touchStart);
-      track.addEventListener('touchstart', touchStart);
-      track.addEventListener('mousemove', touchMove);
-      track.addEventListener('touchmove', touchMove);
-      track.addEventListener('mouseup', touchEnd);
-      track.addEventListener('touchend', touchEnd);
-      track.addEventListener('mouseleave', touchEnd);
+      (track as HTMLElement).addEventListener('mousedown', touchStart);
+      (track as HTMLElement).addEventListener('touchstart', touchStart);
+      (track as HTMLElement).addEventListener('mousemove', touchMove);
+      (track as HTMLElement).addEventListener('touchmove', touchMove);
+      (track as HTMLElement).addEventListener('mouseup', touchEnd);
+      (track as HTMLElement).addEventListener('touchend', touchEnd);
+      (track as HTMLElement).addEventListener('mouseleave', touchEnd);
     }
 
     // Navigation buttons
