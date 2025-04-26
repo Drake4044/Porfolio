@@ -10,10 +10,11 @@ import React from "../icons/React.astro"
 import Redux from "../icons/Redux.astro"
 import Sequelize from "../icons/Sequelize.astro"
 import Express from "../icons/Express.astro"
+import Typescript from "../icons/Typescript.astro"
 
 const TAGS = {
   TAILWIND: {
-    name: "Tailwind CSS",
+    name: "Tailwind",
     class: "bg-[#003159] text-white",
     icon: Tailwind,
   },
@@ -21,6 +22,11 @@ const TAGS = {
     name: "JavaScript",
     class: "bg-yellow-500 text-black font-bold",
     icon: Javascript,
+  },
+  TYPESCRIPT: {
+    name: "TypeScript",
+    class: "bg-blue-500 text-white font-bold",
+    icon: Typescript,
   },
   HTML: {
     name: "HTML",
@@ -54,6 +60,20 @@ const TAGS = {
   },
 }
 const PROJECTS = [
+{
+    title: "Carta AI - Landing Page",
+    description:
+      "Carta AI presenta su servicio de inteligencia artificial para restaurantes. En ella pueden encontrar toda la información sobre el producto: qué es, cómo funciona, sus beneficios y los diferentes planes de precios. Creada con la inteligencia artificial de Lovable, lo que garantiza una experiencia visual moderna, intuitiva y optimizada para convertir visitantes en clientes.",
+    link: "https://www.cartaai.pe/",
+    github: "",
+    images: [
+      "/projects/cartaAI.pe/cartaai.pe-0.webp",
+      "/projects/cartaAI.pe/cartaai.pe-1.webp",
+      "/projects/cartaAI.pe/cartaai.pe-2.webp",
+      "/projects/cartaAI.pe/cartaai.pe-3.webp"
+    ],
+    tags: [TAGS.TYPESCRIPT, TAGS.REACT, TAGS.TAILWIND, TAGS.CSS],
+  },
   {
     title: "Pokedex - Pokemon",
     description:
@@ -61,9 +81,9 @@ const PROJECTS = [
     link: "",
     github: "https://github.com/Drake4044/PI-Henry-Pokemons",
     images: [
+      "/projects/pokemon/pokemon-0.webp",
       "/projects/pokemon/pokemon-1.webp",
-      "/projects/pokemon/pokemon-2.webp",
-      "/projects/pokemon/pokemon-3.webp"
+      "/projects/pokemon/pokemon-2.webp"
     ],
     tags: [TAGS.JAVASCRIPT, TAGS.HTML, TAGS.CSS, TAGS.REACT, TAGS.REDUX, TAGS.EXPRESS, TAGS.SEQUELIZE],
   },
@@ -74,9 +94,9 @@ const PROJECTS = [
     link: "",
     github: "https://github.com/Drake4044/Tetris-Game",
     images: [
+      "/projects/tetris/tetris-0.webp",
       "/projects/tetris/tetris-1.webp",
-      "/projects/tetris/tetris-2.webp",
-      "/projects/tetris/tetris-3.webp"
+      "/projects/tetris/tetris-2.webp"
     ],
     tags: [TAGS.JAVASCRIPT, TAGS.HTML, TAGS.CSS],
   },
@@ -249,17 +269,27 @@ const PROJECTS = [
     touch-action: none;
     cursor: grab;
     user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .carousel-track {
     will-change: transform;
     transform: translateX(0);
     transition: transform 0.3s ease-out;
+    display: flex;
+    align-items: center;
   }
 
   .carousel-slide {
     flex-shrink: 0;
     background: rgba(0, 0, 0, 0.1);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .carousel-dot {
@@ -283,6 +313,10 @@ const PROJECTS = [
 
   .project-image {
     pointer-events: none;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
   }
 </style>
 
@@ -301,8 +335,20 @@ const PROJECTS = [
       const projectImage = article.querySelector('.project-image');
       const imageWrapper = article.querySelector('.image-container > div');
       const previousArrow = article.previousElementSibling?.querySelector('.project-arrow');
+      const carousel = article.querySelector('.carousel-container');
 
       if (entry.intersectionRatio >= 0.6 && entry.isIntersecting) {
+        // Reset carousel to first image when project becomes visible
+        if (carousel) {
+          const track = carousel.querySelector('.carousel-track');
+          if (track) {
+            (track as HTMLElement).style.transform = 'translateX(0)';
+            carousel.querySelectorAll('.carousel-dot').forEach((dot, index) => {
+              dot.classList.toggle('active', index === 0);
+            });
+          }
+        }
+
         if (previousArrow && previousArrow instanceof HTMLElement && !previousArrow.classList.contains('hiding')) {
           previousArrow.classList.remove('showing');
           previousArrow.classList.add('hiding');
@@ -415,11 +461,15 @@ const PROJECTS = [
     let currentIndex = 0;
     let prevTranslate = 0;
     let animationID = 0;
+    let autoPlayInterval: number | null = null;
+    let isAutoPlayPaused = false;
+    let isProjectVisible = false;
 
     const slides = carousel.querySelectorAll('.carousel-slide');
     const dots = carousel.querySelectorAll('.carousel-dot');
     const prevButton = carousel.querySelector('.carousel-button-prev');
     const nextButton = carousel.querySelector('.carousel-button-next');
+    const projectCard = carousel.closest('.project-card');
 
     // Prevent image dragging
     carousel.querySelectorAll('img').forEach(img => {
@@ -442,6 +492,34 @@ const PROJECTS = [
       });
     }
 
+    function nextSlide() {
+      if (!isProjectVisible) return;
+      currentIndex = (currentIndex + 1) % slides.length;
+      setPositionByIndex();
+    }
+
+    function startAutoPlay() {
+      if (autoPlayInterval || !isProjectVisible) return;
+      autoPlayInterval = window.setInterval(nextSlide, 3000);
+    }
+
+    function stopAutoPlay() {
+      if (autoPlayInterval) {
+        clearInterval(autoPlayInterval);
+        autoPlayInterval = null;
+      }
+    }
+
+    function pauseAutoPlayTemporarily() {
+      if (isAutoPlayPaused || !isProjectVisible) return;
+      isAutoPlayPaused = true;
+      stopAutoPlay();
+      setTimeout(() => {
+        isAutoPlayPaused = false;
+        startAutoPlay();
+      }, 5000);
+    }
+
     function getPositionX(event: Event) {
       return event.type.includes('mouse') ? (event as MouseEvent).pageX : (event as TouchEvent).touches[0].clientX;
     }
@@ -451,6 +529,7 @@ const PROJECTS = [
       isDragging = true;
       animationID = requestAnimationFrame(animation);
       if (track) track.classList.add('grabbing');
+      stopAutoPlay();
     }
 
     function touchMove(event: Event) {
@@ -479,6 +558,7 @@ const PROJECTS = [
       }
 
       setPositionByIndex();
+      pauseAutoPlayTemporarily();
     }
 
     function animation() {
@@ -500,19 +580,25 @@ const PROJECTS = [
     // Navigation buttons
     if (prevButton) {
       prevButton.addEventListener('click', () => {
-        if (currentIndex > 0) {
+        if (currentIndex === 0) {
+          currentIndex = slides.length - 1;
+        } else {
           currentIndex -= 1;
-          setPositionByIndex();
         }
+        setPositionByIndex();
+        pauseAutoPlayTemporarily();
       });
     }
 
     if (nextButton) {
       nextButton.addEventListener('click', () => {
-        if (currentIndex < slides.length - 1) {
+        if (currentIndex === slides.length - 1) {
+          currentIndex = 0;
+        } else {
           currentIndex += 1;
-          setPositionByIndex();
         }
+        setPositionByIndex();
+        pauseAutoPlayTemporarily();
       });
     }
 
@@ -521,11 +607,35 @@ const PROJECTS = [
       dot.addEventListener('click', () => {
         currentIndex = index;
         setPositionByIndex();
+        pauseAutoPlayTemporarily();
       });
     });
 
     // Initialize position
     setPositionByIndex();
+
+    // Reset carousel position when project becomes visible
+    if (projectCard) {
+      const projectObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          isProjectVisible = entry.isIntersecting && entry.intersectionRatio >= 0.6;
+          if (isProjectVisible) {
+            currentIndex = 0;
+            setPositionByIndex();
+            startAutoPlay();
+          } else {
+            stopAutoPlay();
+          }
+        });
+      }, { threshold: [0.6] });
+
+      projectObserver.observe(projectCard);
+    }
+
+    // Cleanup on component unmount
+    return () => {
+      stopAutoPlay();
+    };
   });
 </script>
 
