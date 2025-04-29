@@ -549,11 +549,10 @@ const PROJECTS = [
       
       // Minimum distance for swipe
       if (Math.abs(movedBy) > 20) {
-        if (movedBy < 0 && currentIndex < slides.length - 1) {
-          currentIndex += 1;
-        }
-        if (movedBy > 0 && currentIndex > 0) {
-          currentIndex -= 1;
+        if (movedBy < 0) {
+          currentIndex = (currentIndex + 1) % slides.length;
+        } else {
+          currentIndex = (currentIndex - 1 + slides.length) % slides.length;
         }
       }
 
@@ -562,8 +561,16 @@ const PROJECTS = [
     }
 
     function animation() {
-      setSliderPosition();
-      if (isDragging) requestAnimationFrame(animation);
+      if (isDragging) {
+        // Efecto circular
+        if (currentTranslate > 0) {
+          currentTranslate = -((slides.length - 1) * 100);
+        } else if (currentTranslate < -((slides.length - 1) * 100)) {
+          currentTranslate = 0;
+        }
+        setSliderPosition();
+        requestAnimationFrame(animation);
+      }
     }
 
     // Event listeners
