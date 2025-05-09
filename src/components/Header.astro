@@ -25,24 +25,23 @@ const navItems = [
 const contactItem = {
     title: "Contacto",
     label: "contacto",
-    url: "mailto:martincastro4044@gmail.com",
 }
 ---
 
 <header class="fixed top-0 z-20 flex items-center justify-between w-[calc(100%-2rem)] md:w-auto mx-auto mt-2 px-4 mobile-header left-1/2 -translate-x-1/2" id="mobile-header">
-  <!-- Contacto (solo visible en móvil) -->
-  <a
-    href={contactItem.url}
+  <!-- Contacto móvil -->
+  <button
+    onclick="window.open('https://wa.me/5491170583531', '_blank')"
     class="relative md:hidden block px-2 py-2 transition text-sm font-medium text-white-600/90 contact-link"
-    aria-label={contactItem.label}
+    aria-label="Contacto WhatsApp"
   >
-    {contactItem.title}
-  </a>
+    Contacto
+  </button>
 
-  <!-- Navegación desktop ajustada -->
+  <!-- Navegación desktop -->
   <nav class="hidden md:flex px-6 text-sm font-medium rounded-full text-white-600/90 justify-center items-center gap-x-6">
     {
-      [...navItems, contactItem].map((link) => (
+      navItems.map((link) => (
         <a
           class="relative block px-2 py-2 transition hover:text-yellow-400 hover:text-shadow desktop-nav-link whitespace-nowrap"
           aria-label={link.label}
@@ -52,6 +51,14 @@ const contactItem = {
         </a>
       ))
     }
+    <!-- Contacto desktop -->
+    <button
+      onclick="window.open('https://wa.me/5491170583531', '_blank')"
+      class="relative block px-2 py-2 transition hover:text-yellow-400 hover:text-shadow desktop-nav-link whitespace-nowrap"
+      aria-label="Contacto WhatsApp"
+    >
+      Contacto
+    </button>
   </nav>
 
   <!-- Menú móvil actualizado -->
