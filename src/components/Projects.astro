@@ -101,19 +101,19 @@ const PROJECTS = [
     ],
     tags: [TAGS.JAVASCRIPT, TAGS.HTML, TAGS.CSS, TAGS.REACT, TAGS.REDUX, TAGS.EXPRESS, TAGS.SEQUELIZE],
   },
-  {
-    title: "JavaScrtipt - Tetris",
-    description:
-      "Aplicación web interactiva desarrollada en JavaScript que permite a los usuarios disfrutar del icónico juego de Tetris directamente desde su navegador. Diseñada con una interfaz intuitiva y controles sencillos, esta app ofrece una experiencia de juego fiel al clásico Tetris.",
-    link: "",
-    github: "https://github.com/Drake4044/Tetris-Game",
-    images: [
-      "/projects/tetris/tetris-0.webp",
-      "/projects/tetris/tetris-1.webp",
-      "/projects/tetris/tetris-2.webp"
-    ],
-    tags: [TAGS.JAVASCRIPT, TAGS.HTML, TAGS.CSS],
-  },
+  // {
+  //   title: "JavaScrtipt - Tetris",
+  //   description:
+  //     "Aplicación web interactiva desarrollada en JavaScript que permite a los usuarios disfrutar del icónico juego de Tetris directamente desde su navegador. Diseñada con una interfaz intuitiva y controles sencillos, esta app ofrece una experiencia de juego fiel al clásico Tetris.",
+  //   link: "",
+  //   github: "https://github.com/Drake4044/Tetris-Game",
+  //   images: [
+  //     "/projects/tetris/tetris-0.webp",
+  //     "/projects/tetris/tetris-1.webp",
+  //     "/projects/tetris/tetris-2.webp"
+  //   ],
+  //   tags: [TAGS.JAVASCRIPT, TAGS.HTML, TAGS.CSS],
+  // },
 ]
 ---
 
@@ -131,9 +131,10 @@ const PROJECTS = [
                       <div class="carousel-slide min-w-full h-full flex items-center justify-center">
                         <img 
                           alt={`${title} - imagen ${imgIndex + 1}`} 
-                          class="w-full h-full object-contain transition duration-500 project-image" 
+                          class="w-full h-full object-contain transition duration-500 project-image cursor-pointer hover:scale-105" 
                           src={image} 
                           data-index={imgIndex}
+                          data-images={JSON.stringify(images)}
                         />
                       </div>
                     ))}
@@ -225,6 +226,48 @@ const PROJECTS = [
       </>
     ))
   }
+</div>
+
+<!-- Modal para imágenes en pantalla completa -->
+<div id="imageModal" class="fixed inset-0 z-50 hidden">
+  <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+  <button 
+    class="absolute top-4 right-4 z-50 text-white hover:text-yellow-400 transition-colors duration-300"
+    onclick="closeModal()"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 6L6 18M6 6l12 12"/>
+    </svg>
+  </button>
+  <div class="relative w-full h-full flex items-center justify-center">
+    <div class="carousel-container w-full h-full flex items-center justify-center">
+      <div class="carousel-track flex transition-transform duration-300 ease-in-out">
+        <!-- Las imágenes se insertarán aquí dinámicamente -->
+      </div>
+      
+      <!-- Navigation buttons -->
+      <button class="carousel-button carousel-button-prev absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-3 hover:bg-black/70 transition-colors duration-300">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+      </button>
+      <button class="carousel-button carousel-button-next absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-3 hover:bg-black/70 transition-colors duration-300">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 18l6-6-6-6"/>
+        </svg>
+      </button>
+      
+      <!-- Image counter -->
+      <div class="absolute top-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-4 py-2 rounded-full text-sm backdrop-blur-sm">
+        <span id="modalImageCounter">1/1</span>
+      </div>
+      
+      <!-- Dots indicator -->
+      <div class="carousel-dots absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+        <!-- Los dots se insertarán aquí dinámicamente -->
+      </div>
+    </div>
+  </div>
 </div>
 
 <style>
@@ -326,11 +369,125 @@ const PROJECTS = [
   }
 
   .project-image {
-    pointer-events: none;
+    pointer-events: auto;
     width: 100%;
     height: 100%;
     object-fit: contain;
     object-position: center;
+    transition: transform 0.3s ease;
+  }
+
+  /* Estilos para el modal */
+  #imageModal {
+    transition: opacity 0.3s ease-in-out;
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+  }
+
+  #imageModal.show {
+    display: block;
+    opacity: 1;
+  }
+
+  #imageModal .carousel-container {
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow: hidden;
+    touch-action: none;
+    cursor: grab;
+    user-select: none;
+    position: relative;
+    padding-left: 5vw;
+    padding-right: 5vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #imageModal .carousel-track {
+    display: flex;
+    transition: transform 0.3s ease-out;
+    will-change: transform;
+    height: 100%;
+    width: 100%;
+  }
+
+  #imageModal .carousel-slide {
+    min-width: 100%;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+    padding: 0;
+  }
+
+  #imageModal .carousel-slide img {
+    max-width: 100%;
+    max-height: 80vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    pointer-events: none;
+    filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.5));
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  @media (max-width: 768px) {
+    #imageModal .carousel-slide img {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+    }
+  }
+
+  #imageModal .carousel-button {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    z-index: 50;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+
+  #imageModal .carousel-button:hover {
+    background: rgba(0, 0, 0, 0.7);
+  }
+
+  #imageModal:hover .carousel-button {
+    opacity: 1;
+  }
+
+  #imageModal .carousel-container.grabbing {
+    cursor: grabbing;
+  }
+
+  #imageModal .carousel-dot {
+    width: 8px;
+    height: 8px;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(4px);
+  }
+
+  #imageModal .carousel-dot.active {
+    background-color: rgb(250 204 21);
+    transform: scale(1.2);
   }
 </style>
 
@@ -657,6 +814,235 @@ const PROJECTS = [
     return () => {
       stopAutoPlay();
     };
+  });
+
+  // Funcionalidad del modal
+  let modalImages: string[] = [];
+  let currentModalIndex = 0;
+  let isDragging = false;
+  let startPos = 0;
+  let currentTranslate = 0;
+  let prevTranslate = 0;
+  let animationID = 0;
+
+  // Declarar las funciones globales
+  declare global {
+    interface Window {
+      openModal: (image: string, index: number, images: string[]) => void;
+      closeModal: () => void;
+    }
+  }
+
+  function getPositionX(event: Event) {
+    return event.type.includes('mouse') ? (event as MouseEvent).pageX : (event as TouchEvent).touches[0].clientX;
+  }
+
+  function touchStart(event: Event) {
+    startPos = getPositionX(event);
+    isDragging = true;
+    animationID = requestAnimationFrame(animation);
+    const container = document.querySelector('#imageModal .carousel-container');
+    if (container) {
+      container.classList.add('grabbing');
+    }
+  }
+
+  function touchMove(event: Event) {
+    if (isDragging) {
+      const currentPosition = getPositionX(event);
+      const diff = (currentPosition - startPos) * 100 / window.innerWidth;
+      currentTranslate = prevTranslate + diff;
+      setModalPosition();
+    }
+  }
+
+  function touchEnd() {
+    isDragging = false;
+    cancelAnimationFrame(animationID);
+    const container = document.querySelector('#imageModal .carousel-container');
+    if (container) {
+      container.classList.remove('grabbing');
+    }
+
+    const movedBy = currentTranslate - prevTranslate;
+    
+    // Ajustar la sensibilidad del swipe
+    if (Math.abs(movedBy) > 10) {
+      if (movedBy < 0) {
+        currentModalIndex = (currentModalIndex + 1) % modalImages.length;
+      } else {
+        currentModalIndex = (currentModalIndex - 1 + modalImages.length) % modalImages.length;
+      }
+    }
+
+    currentTranslate = -currentModalIndex * 100;
+    prevTranslate = currentTranslate;
+    setModalPosition();
+    updateModalDots();
+  }
+
+  function animation() {
+    if (isDragging) {
+      setModalPosition();
+      requestAnimationFrame(animation);
+    }
+  }
+
+  function setModalPosition() {
+    const track = document.querySelector('#imageModal .carousel-track');
+    if (track) {
+      (track as HTMLElement).style.transform = `translateX(${currentTranslate}%)`;
+    }
+  }
+
+  function updateModalDots() {
+    const dots = document.querySelectorAll('#imageModal .carousel-dot');
+    dots.forEach((dot, index) => {
+      dot.classList.toggle('active', index === currentModalIndex);
+    });
+    updateModalCounter();
+  }
+
+  function updateModalCounter() {
+    const counter = document.getElementById('modalImageCounter');
+    if (counter) {
+      counter.textContent = `${currentModalIndex + 1}/${modalImages.length}`;
+    }
+  }
+
+  // Hacer la función openModal global
+  window.openModal = function(image: string, index: number, images: string[]) {
+    modalImages = images;
+    currentModalIndex = index;
+    
+    const modal = document.getElementById('imageModal');
+    const track = modal?.querySelector('.carousel-track');
+    const container = modal?.querySelector('.carousel-container');
+    const dotsContainer = modal?.querySelector('.carousel-dots');
+    
+    if (modal && track && container && dotsContainer) {
+      // Limpiar el track y los dots
+      track.innerHTML = '';
+      dotsContainer.innerHTML = '';
+      
+      // Añadir las imágenes
+      images.forEach((img, imgIndex) => {
+        const slide = document.createElement('div');
+        slide.className = 'carousel-slide';
+        slide.style.width = '100%';
+        slide.style.flexShrink = '0';
+        const imgElement = document.createElement('img');
+        imgElement.src = img;
+        imgElement.alt = `Project image ${imgIndex + 1}`;
+        imgElement.style.width = 'auto';
+        imgElement.style.height = 'auto';
+        imgElement.style.maxWidth = '100%';
+        imgElement.style.maxHeight = '100%';
+        imgElement.style.objectFit = 'contain';
+        slide.appendChild(imgElement);
+        track.appendChild(slide);
+      });
+
+      // Añadir los dots
+      images.forEach((_, dotIndex) => {
+        const dot = document.createElement('button');
+        dot.className = 'carousel-dot w-2 h-2 rounded-full bg-white/50 transition-colors duration-300';
+        dot.dataset.index = dotIndex.toString();
+        dot.addEventListener('click', () => {
+          currentModalIndex = dotIndex;
+          currentTranslate = -dotIndex * 100;
+          prevTranslate = currentTranslate;
+          setModalPosition();
+          updateModalDots();
+        });
+        dotsContainer.appendChild(dot);
+      });
+      
+      // Posicionar en la imagen seleccionada
+      currentTranslate = -index * 100;
+      prevTranslate = currentTranslate;
+      setModalPosition();
+      updateModalDots();
+      
+      // Mostrar el modal
+      modal.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  // Hacer la función closeModal global
+  window.closeModal = function() {
+    const modal = document.getElementById('imageModal');
+    const container = modal?.querySelector('.carousel-container');
+    if (modal && container) {
+      modal.classList.remove('show');
+      document.body.style.overflow = '';
+      container.classList.remove('grabbing');
+    }
+  }
+
+  // Event listeners para el modal
+  document.addEventListener('DOMContentLoaded', () => {
+    // Añadir event listeners a todas las imágenes del proyecto
+    document.querySelectorAll('.project-image').forEach(img => {
+      img.addEventListener('click', (e) => {
+        const target = e.currentTarget as HTMLImageElement;
+        const index = parseInt(target.dataset.index || '0');
+        const images = JSON.parse(target.dataset.images || '[]');
+        window.openModal(target.src, index, images);
+      });
+    });
+
+    const modal = document.getElementById('imageModal');
+    const container = modal?.querySelector('.carousel-container');
+    const prevButton = modal?.querySelector('.carousel-button-prev');
+    const nextButton = modal?.querySelector('.carousel-button-next');
+
+    if (container) {
+      container.addEventListener('mousedown', touchStart);
+      container.addEventListener('touchstart', touchStart);
+      container.addEventListener('mousemove', touchMove);
+      container.addEventListener('touchmove', touchMove);
+      container.addEventListener('mouseup', touchEnd);
+      container.addEventListener('touchend', touchEnd);
+      container.addEventListener('mouseleave', touchEnd);
+    }
+
+    if (prevButton) {
+      prevButton.addEventListener('click', () => {
+        currentModalIndex = (currentModalIndex - 1 + modalImages.length) % modalImages.length;
+        currentTranslate = -currentModalIndex * 100;
+        prevTranslate = currentTranslate;
+        setModalPosition();
+        updateModalDots();
+      });
+    }
+
+    if (nextButton) {
+      nextButton.addEventListener('click', () => {
+        currentModalIndex = (currentModalIndex + 1) % modalImages.length;
+        currentTranslate = -currentModalIndex * 100;
+        prevTranslate = currentTranslate;
+        setModalPosition();
+        updateModalDots();
+      });
+    }
+
+    // Cerrar modal al hacer clic fuera de la imagen
+    modal?.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      const carouselContainer = modal.querySelector('.carousel-container');
+      if (target === modal || (carouselContainer && !carouselContainer.contains(target))) {
+        window.closeModal();
+      }
+    });
+  });
+
+  // Cerrar modal con la tecla Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      window.closeModal();
+    }
   });
 </script>
 
