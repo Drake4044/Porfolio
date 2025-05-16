@@ -232,7 +232,7 @@ const PROJECTS = [
 <div id="imageModal" class="fixed inset-0 z-50 hidden">
   <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
   <button 
-    class="absolute top-4 right-4 z-50 text-white hover:text-yellow-400 transition-colors duration-300"
+    class="absolute top-4 right-4 z-50 text-white hover:text-yellow-400 transition-colors duration-300 -translate-x-48 translate-y-10"
     onclick="closeModal()"
   >
     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -258,12 +258,12 @@ const PROJECTS = [
       </button>
       
       <!-- Image counter -->
-      <div class="absolute top-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-4 py-2 rounded-full text-sm backdrop-blur-sm">
+      <div class="absolute top-4 left-1/2 -translate-x-16 bg-black/50 text-white px-4 py-2 rounded-full text-sm backdrop-blur-sm">
         <span id="modalImageCounter">1/1</span>
       </div>
       
       <!-- Dots indicator -->
-      <div class="carousel-dots absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+      <div class="carousel-dots absolute bottom-4 left-1/2 -translate-x-[4rem] flex space-x-2">
         <!-- Los dots se insertarán aquí dinámicamente -->
       </div>
     </div>
@@ -375,6 +375,7 @@ const PROJECTS = [
     object-fit: contain;
     object-position: center;
     transition: transform 0.3s ease;
+  
   }
 
   /* Estilos para el modal */
@@ -387,11 +388,13 @@ const PROJECTS = [
     width: 100vw;
     height: 100vh;
     z-index: 9999;
+    transform: translateX(2rem);
   }
 
   #imageModal.show {
     display: block;
     opacity: 1;
+    
   }
 
   #imageModal .carousel-container {
@@ -415,6 +418,7 @@ const PROJECTS = [
     will-change: transform;
     height: 100%;
     width: 100%;
+  
   }
 
   #imageModal .carousel-slide {
@@ -427,6 +431,7 @@ const PROJECTS = [
     background: rgba(0, 0, 0, 0.1);
     flex-shrink: 0;
     padding: 0;
+    
   }
 
   #imageModal .carousel-slide img {
@@ -440,6 +445,8 @@ const PROJECTS = [
     display: block;
     margin-left: auto;
     margin-right: auto;
+ 
+    
   }
 
   @media (max-width: 768px) {
@@ -463,6 +470,8 @@ const PROJECTS = [
     align-items: center;
     justify-content: center;
     backdrop-filter: blur(4px);
+    transform: translateX(-2rem);
+    
   }
 
   #imageModal .carousel-button:hover {
@@ -475,6 +484,7 @@ const PROJECTS = [
 
   #imageModal .carousel-container.grabbing {
     cursor: grabbing;
+    
   }
 
   #imageModal .carousel-dot {
@@ -483,11 +493,14 @@ const PROJECTS = [
     transition: all 0.3s ease;
     background: rgba(255, 255, 255, 0.5);
     backdrop-filter: blur(4px);
+    transform: translateX(-20rem);
+    
   }
 
   #imageModal .carousel-dot.active {
     background-color: rgb(250 204 21);
     transform: scale(1.2);
+   
   }
 </style>
 
