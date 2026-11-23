@@ -12,7 +12,6 @@ import Sequelize from "../icons/Sequelize.astro"
 import Express from "../icons/Express.astro"
 import Typescript from "../icons/Typescript.astro"
 import ImageCarousel from "./ImageCarousel.astro"
-import Lightbox from "./Lightbox.astro"
 
 const TAGS = {
   TAILWIND: {
@@ -230,9 +229,6 @@ const PROJECTS: Project[] = [
   }
 </div>
 
-<!-- Visor a pantalla completa (uno solo para todos los proyectos) -->
-<Lightbox />
-
 <style>
   @keyframes floatingArrow {
     0%, 100% { transform: translate(-50%, -50%); }
@@ -345,12 +341,7 @@ const PROJECTS: Project[] = [
 </style>
 
 <script>
-  import { initGallery } from '../scripts/gallery'
-
   document.addEventListener('astro:page-load', () => {
-    // ── Carruseles + visor a pantalla completa ──
-    const destroyGallery = initGallery()
-
     // ── Animación de entrada de cada proyecto (igual que antes) ──
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -416,7 +407,6 @@ const PROJECTS: Project[] = [
     // Limpieza al cambiar de página (View Transitions)
     document.addEventListener('astro:before-swap', () => {
       observer.disconnect()
-      destroyGallery()
     }, { once: true })
   })
 </script>

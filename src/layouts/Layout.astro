@@ -1,6 +1,7 @@
 ---
 import "@fontsource-variable/onest"
 import Header from '../components/Header.astro';
+import Lightbox from "../components/Lightbox.astro";
 import Footer from "../components/Footer.astro";
 import { ViewTransitions } from "astro:transitions"
 
@@ -64,9 +65,19 @@ const { title } = Astro.props;
 			<slot />
 		</div>
 		<Footer/>
+		<!-- Visor a pantalla completa: proyectos y fotos con data-zoomable -->
+		<Lightbox />
 	</body>
 </html>
 <script>
+	import { initGallery } from '../scripts/gallery'
+
+	// ── Carruseles + visor a pantalla completa ──
+	document.addEventListener('astro:page-load', () => {
+		const destroyGallery = initGallery()
+		document.addEventListener('astro:before-swap', destroyGallery, { once: true })
+	})
+
 	// ── Animación de aparición al hacer scroll ──
 	// Cualquier elemento con data-reveal aparece con un fade + slide al entrar en pantalla.
 	// data-reveal-delay="150" agrega un retraso en ms (útil para escalonar elementos).
@@ -101,6 +112,19 @@ const { title } = Astro.props;
 	}
 	html.light .page-bg {
 		background: radial-gradient(125% 125% at 50% 30%, #fafaf9 40%, #c4b5fd 100%);
+	}
+
+	/* ── Fotos que se abren a pantalla completa ── */
+	img[data-zoomable] {
+		cursor: zoom-in;
+	}
+	img[data-zoomable]:hover {
+		filter: brightness(1.08);
+		box-shadow: 0 0 0 2px rgb(250 204 21 / 0.7), 0 10px 30px rgb(102 51 238 / 0.4);
+	}
+	img[data-zoomable]:focus-visible {
+		outline: 2px solid rgb(250 204 21);
+		outline-offset: 3px;
 	}
 
 	/* ── Aparición al hacer scroll ── */
