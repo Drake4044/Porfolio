@@ -39,7 +39,9 @@ const contactItem = {
   </button>
 
   <!-- Navegación desktop -->
-  <nav class="hidden md:flex px-6 text-sm font-medium rounded-full text-white-600/90 justify-center items-center gap-x-6">
+  <nav class="desktop-nav hidden md:flex relative px-6 text-sm font-medium rounded-full text-white-600/90 justify-center items-center gap-x-6">
+    <!-- Indicador que se desliza hasta la sección activa -->
+    <span class="nav-indicator" id="nav-indicator" aria-hidden="true"></span>
     {
       navItems.map((link) => (
         <a
@@ -59,10 +61,30 @@ const contactItem = {
     >
       Contacto
     </button>
+    <button
+      type="button"
+      class="theme-toggle"
+      data-theme-toggle
+      aria-label="Cambiar entre modo claro y oscuro"
+      title="Cambiar tema"
+    >
+      <svg class="icon-sun size-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"/></svg>
+      <svg class="icon-moon size-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"/></svg>
+    </button>
   </nav>
 
   <!-- Menú móvil actualizado -->
-  <div class="md:hidden">
+  <div class="md:hidden flex items-center gap-1">
+    <button
+      type="button"
+      class="theme-toggle"
+      data-theme-toggle
+      aria-label="Cambiar entre modo claro y oscuro"
+      title="Cambiar tema"
+    >
+      <svg class="icon-sun size-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"/></svg>
+      <svg class="icon-moon size-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"/></svg>
+    </button>
     <button
       id="menu-toggle"
       class="text-white p-2 focus:outline-none"
@@ -107,6 +129,39 @@ const contactItem = {
 
 <script>
   document.addEventListener("astro:page-load", () => {
+    // ── Botón de modo claro / oscuro ──
+    document.querySelectorAll<HTMLButtonElement>("[data-theme-toggle]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const root = document.documentElement
+        const toLight = !root.classList.contains("light")
+        root.classList.add("theme-transition")
+        root.classList.toggle("light", toLight)
+        root.classList.toggle("dark", !toLight)
+        try { localStorage.setItem("theme", toLight ? "light" : "dark") } catch (e) {}
+        window.setTimeout(() => root.classList.remove("theme-transition"), 500)
+      })
+    })
+
+    // ── Indicador deslizante del menú de escritorio ──
+    const indicator = document.getElementById("nav-indicator")
+    const moveIndicator = () => {
+      if (!indicator) return
+      const active = document.querySelector<HTMLElement>(".desktop-nav a.text-yellow-400")
+      if (!active) {
+        indicator.style.opacity = "0"
+        return
+      }
+      indicator.style.opacity = "1"
+      indicator.style.width = `${active.offsetWidth - 16}px`
+      indicator.style.transform = `translateX(${active.offsetLeft + 8}px)`
+    }
+    // Se mueve cada vez que cambia el link activo (las clases las pone el código de abajo)
+    const navMutation = new MutationObserver(() => moveIndicator())
+    document.querySelectorAll(".desktop-nav a").forEach((a) =>
+      navMutation.observe(a, { attributes: true, attributeFilter: ["class"] })
+    )
+    window.addEventListener("resize", moveIndicator)
+
     const sections = document.querySelectorAll("section")
     const navItems = document.querySelectorAll("header nav a")
     const menuToggle = document.getElementById("menu-toggle")
@@ -369,8 +424,11 @@ const contactItem = {
       sectionObserver.observe(section)
     })
 
+    moveIndicator()
+
     // Cleanup mejorado
     return () => {
+      navMutation.disconnect()
         observer.disconnect()
       sectionObserver.disconnect()
       window.removeEventListener('scroll', updateActiveLinks)
@@ -379,6 +437,91 @@ const contactItem = {
 </script>
 
 <style>
+  /* ── Botón de tema ── */
+  .theme-toggle {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 9999px;
+    color: rgb(250 204 21);
+    transition: background 0.3s, transform 0.3s;
+  }
+  .theme-toggle:hover {
+    background: rgb(255 255 255 / 0.1);
+    transform: rotate(-15deg);
+  }
+  .theme-toggle svg {
+    position: absolute;
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s;
+  }
+  /* En oscuro se ve la luna; en claro, el sol */
+  .theme-toggle .icon-sun { opacity: 0; transform: rotate(-90deg) scale(0.5); }
+  :global(html.light) .theme-toggle .icon-sun { opacity: 1; transform: none; }
+  :global(html.light) .theme-toggle .icon-moon { opacity: 0; transform: rotate(90deg) scale(0.5); }
+  :global(html.light) .theme-toggle { color: #b45309; }
+  :global(html.light) .theme-toggle:hover { background: rgb(0 0 0 / 0.06); }
+
+  /* ── Indicador del link activo ── */
+  .nav-indicator {
+    position: absolute;
+    left: 0;
+    bottom: 4px;
+    height: 2px;
+    width: 0;
+    opacity: 0;
+    border-radius: 9999px;
+    background: rgb(250 204 21);
+    box-shadow: 0 0 8px rgb(250 204 21 / 0.8);
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), width 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s;
+    pointer-events: none;
+  }
+
+  /* ── Header en modo claro ── */
+  @media (min-width: 768px) {
+    :global(html.light) nav {
+      animation-name: nav-shadown-light;
+    }
+    @keyframes nav-shadown-light {
+      to {
+        @apply shadow-lg ring-1 backdrop-blur ring-black/10;
+        background: radial-gradient(125% 125% at 50% 30%, #fff 40%, #ddd6fe 100%);
+      }
+    }
+  }
+  @media (max-width: 767px) {
+    :global(html.light) .mobile-header {
+      background: radial-gradient(125% 125% at 50% 30%, #fff 40%, #ddd6fe 100%);
+      --tw-ring-color: rgb(0 0 0 / 0.1);
+    }
+  }
+  :global(html.light) .mobile-nav {
+    background: radial-gradient(125% 125% at 50% 30%, #fff 40%, #ddd6fe 100%);
+  }
+  :global(html.light) #menu-toggle,
+  :global(html.light) .mobile-menu-link,
+  :global(html.light) .desktop-nav-link,
+  :global(html.light) .contact-link {
+    color: #1f2937;
+  }
+  :global(html.light) .text-shadow,
+  :global(html.light) .mobile-menu-link.text-yellow-400 {
+    color: #b45309;
+    text-shadow: none;
+  }
+  :global(html.light) .contact-link {
+    animation-name: contactPulseLight;
+  }
+  @keyframes contactPulseLight {
+    0%, 100% { color: #1f2937; }
+    50% { color: #b45309; }
+  }
+  :global(html.light) .nav-indicator {
+    background: #b45309;
+    box-shadow: none;
+  }
+
   .text-shadow {
     text-shadow: 2px 2px 4px rgba(255, 225, 0, 0.7);
     color: rgb(250, 204, 21);

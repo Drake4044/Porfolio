@@ -40,17 +40,104 @@ const { title } = Astro.props;
 
 		<title>{title}</title>
 		<ViewTransitions />
+
+		<!-- Aplica el tema guardado ANTES de pintar la página (evita el "flash" de color) -->
+		<script is:inline>
+			(function () {
+				const apply = () => {
+					let theme = null
+					try { theme = localStorage.getItem('theme') } catch (e) {}
+					if (!theme) theme = 'dark' // el sitio está pensado en oscuro por defecto
+					document.documentElement.classList.toggle('dark', theme === 'dark')
+					document.documentElement.classList.toggle('light', theme === 'light')
+				}
+				apply()
+				// View Transitions reemplaza el <html>: volvemos a aplicar el tema
+				document.addEventListener('astro:after-swap', apply)
+			})()
+		</script>
 	</head>
 	<body class="relative text-white">
-		<div class= "absolute top-0 bottom-0 -z-10 min-h-screen w-full [background:radial-gradient(125%_125%_at_50%_30%,#000_40%,#63e_100%)]"></div>
+		<div class="page-bg absolute top-0 bottom-0 -z-10 min-h-screen w-full"></div>
 		<Header/>
-		<slot />
+		<div transition:animate="fade">
+			<slot />
+		</div>
 		<Footer/>
 	</body>
 </html>
+<script>
+	// ── Animación de aparición al hacer scroll ──
+	// Cualquier elemento con data-reveal aparece con un fade + slide al entrar en pantalla.
+	// data-reveal-delay="150" agrega un retraso en ms (útil para escalonar elementos).
+	document.addEventListener('astro:page-load', () => {
+		const items = document.querySelectorAll<HTMLElement>('[data-reveal]')
+		const io = new IntersectionObserver((entries) => {
+			entries.forEach((entry) => {
+				if (!entry.isIntersecting) return
+				const el = entry.target as HTMLElement
+				el.style.transitionDelay = `${el.dataset.revealDelay ?? 0}ms`
+				el.classList.add('is-revealed')
+				io.unobserve(el) // se anima una sola vez
+			})
+		}, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' })
+		items.forEach((el) => io.observe(el))
+		document.addEventListener('astro:before-swap', () => io.disconnect(), { once: true })
+	})
+</script>
+
 <style is:global>
 	:root {
-		color-scheme: light dark;
+		color-scheme: dark;
+	}
+	html.light {
+		color-scheme: light;
+	}
+
+	/* ── Fondo de la página según el tema ── */
+	.page-bg {
+		background: radial-gradient(125% 125% at 50% 30%, #000 40%, #63e 100%);
+		transition: background 0.5s ease;
+	}
+	html.light .page-bg {
+		background: radial-gradient(125% 125% at 50% 30%, #fafaf9 40%, #c4b5fd 100%);
+	}
+
+	/* ── Aparición al hacer scroll ── */
+	[data-reveal] {
+		opacity: 0;
+		transform: translateY(24px);
+		transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+	}
+	[data-reveal].is-revealed {
+		opacity: 1;
+		transform: none;
+	}
+
+	/* ── Modo claro: ajustes de color sobre las clases que usa el sitio ── */
+	html.light body {
+		color: #1f2937;
+	}
+	html.light .text-white:not(a):not(button):not(.tag-pill):not(.lightbox *):not(.carousel *) {
+		color: #111827;
+	}
+	html.light .text-gray-200 { color: #1f2937; }
+	html.light .text-gray-300 { color: #374151; }
+	html.light .text-white\/80 { color: #4b5563; }
+	html.light .text-yellow-400,
+	html.light .text-yellow-500 { color: #b45309; }
+	html.light .border-gray-700 { border-color: #d1d5db; }
+	html.light .wip-note { color: #78350f; }
+	html.light .wip-badge { color: #92400e; }
+	html.light .bg-white\/5 { background-color: rgb(0 0 0 / 0.05); }
+	html.light .border-white\/10 { border-color: rgb(0 0 0 / 0.12); }
+	html.light .section-arrow,
+	html.light .project-arrow { color: #b45309; }
+
+	/* Transición suave de colores al cambiar de tema */
+	html.theme-transition,
+	html.theme-transition * {
+		transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease !important;
 	}
 
 	html {
@@ -70,6 +157,11 @@ const { title } = Astro.props;
 	@media (prefers-reduced-motion: reduce) {
 		html {
 			scroll-behavior: auto;
+		}
+		[data-reveal] {
+			opacity: 1;
+			transform: none;
+			transition: none;
 		}
 	}
 

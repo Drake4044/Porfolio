@@ -1,0 +1,95 @@
+---
+// Visor de imágenes a pantalla completa.
+// Se abre al tocar una imagen de cualquier carrusel y permite recorrer
+// TODAS las fotos de ese proyecto: swipe, botones, puntos, flechas del
+// teclado; se cierra con la X, la tecla Esc o tocando el fondo.
+---
+
+<div
+  id="lightbox"
+  class="lightbox fixed inset-0 z-[100] flex flex-col"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Visor de imágenes"
+  hidden
+>
+  <div class="absolute inset-0 bg-black/90 backdrop-blur-md" data-lightbox-close></div>
+
+  <header class="relative z-10 flex items-center justify-between gap-4 px-4 py-3 text-white">
+    <p class="text-sm md:text-base font-semibold truncate" data-lightbox-title></p>
+    <div class="flex items-center gap-3 shrink-0">
+      <span class="text-xs md:text-sm px-3 py-1 rounded-full bg-white/10 tabular-nums" data-lightbox-counter>1 / 1</span>
+      <button type="button" class="lightbox-close" data-lightbox-close aria-label="Cerrar visor">
+        <svg xmlns="http://www.w3.org/2000/svg" class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6l-12 12"/><path d="M6 6l12 12"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="carousel relative z-10 flex-1 min-h-0 outline-none" data-lightbox-carousel tabindex="-1">
+    <div class="carousel-viewport lightbox-viewport w-full h-full overflow-hidden" data-carousel-viewport>
+      <div class="carousel-track flex h-full" data-carousel-track></div>
+    </div>
+
+    <button type="button" class="carousel-btn lightbox-btn left-2 md:left-6" data-carousel-prev aria-label="Imagen anterior">
+      <svg xmlns="http://www.w3.org/2000/svg" class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6l6 6"/></svg>
+    </button>
+    <button type="button" class="carousel-btn lightbox-btn right-2 md:right-6" data-carousel-next aria-label="Imagen siguiente">
+      <svg xmlns="http://www.w3.org/2000/svg" class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6l-6 6"/></svg>
+    </button>
+
+    <div class="carousel-dots absolute -bottom-8 left-1/2 -translate-x-1/2 flex justify-center gap-2" data-carousel-dots></div>
+  </div>
+
+  <div class="relative z-10 h-12"></div>
+</div>
+
+<style is:global>
+  .lightbox {
+    animation: lightbox-in 0.25s ease-out;
+  }
+  .lightbox[hidden] {
+    display: none;
+  }
+  @keyframes lightbox-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .lightbox-viewport {
+    cursor: grab;
+  }
+  .lightbox .carousel-slide {
+    padding: 0 0.75rem;
+  }
+  @media (min-width: 768px) {
+    .lightbox .carousel-slide {
+      padding: 0 5rem;
+    }
+  }
+  .lightbox .carousel-slide img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 0.5rem;
+    box-shadow: 0 20px 60px rgb(0 0 0 / 0.6);
+    pointer-events: none;
+  }
+  .lightbox-btn {
+    width: 3rem;
+    height: 3rem;
+    opacity: 1 !important;
+  }
+  .lightbox-close {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 9999px;
+    background: rgb(255 255 255 / 0.1);
+    transition: background 0.2s, color 0.2s, transform 0.2s;
+  }
+  .lightbox-close:hover {
+    background: rgb(255 255 255 / 0.2);
+    color: rgb(250 204 21);
+    transform: rotate(90deg);
+  }
+</style>

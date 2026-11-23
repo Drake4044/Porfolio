@@ -17,6 +17,12 @@ import AboutMe from '../components/AboutMe.astro';
 <Layout title="Porfolio Martín Castro - Desarrollador y Programador Web Full Stack">
 	<main class="px-4">
 		<SectionContainer id="top" class="py-4 mt-16 sm:py-0 max-w-5xl mx-auto section-animation relative" data-section>
+			<!-- Fondo animado del inicio: manchas de color que flotan suavemente -->
+			<div class="hero-bg" aria-hidden="true">
+				<span class="blob blob-1"></span>
+				<span class="blob blob-2"></span>
+				<span class="blob blob-3"></span>
+			</div>
 			<div class="flex gap-3 mb-4 pr-5">
 				<img
 					class="object-fill rounded-[3rem] w-36 h-40 md:w-40 md:h-48 p-1 md:p-3 ring-1 ring-black/70 [background:radial-gradient(125%_125%_at_50%_30%,#000_40%,#63e_100%)]"
@@ -31,15 +37,16 @@ import AboutMe from '../components/AboutMe.astro';
 				</a>
 			</div>
 			<h1 
+				data-reveal data-reveal-delay="100"
 				class="text-2xl sm:text-4xl md:text-5xl font-bold flex flex-row gap-x-4 pb-5"
 			>¡Hola! Soy Martin Castro
 			</h1>
-				<h2 class="text-base md:text-xl lg:text-2xl opacity-80 text-pretty" >
+				<h2 class="text-base md:text-xl lg:text-2xl opacity-80 text-pretty" data-reveal data-reveal-delay="250">
 					<span class="text-yellow-400" >
 						Desarrollador Web Full Stack
 					</span> con experiencia en crear soluciones digitales y eficientes. Transformo ideas en sitios funcionales, optimizados pensando en una excelente experiencia de usuario. 
 				</h2>
-			<nav class="md:flex gap-x-5 mt-5">
+			<nav class="md:flex gap-x-5 mt-5" data-reveal data-reveal-delay="400">
 				<SocialPill href="https://github.com/Drake4044">
 					<GithubIcon class="size-8"/>
 					Github
@@ -79,7 +86,7 @@ import AboutMe from '../components/AboutMe.astro';
 		</div>
 
 		<SectionContainer id="experiencia" class="pt-6 md:pt-28 max-w-5xl mx-auto" >
-			<h2 class="text-3xl font-bold mb-8 flex items-center gap-x-3 " >
+			<h2 class="text-3xl font-bold mb-8 flex items-center gap-x-3 section-title" data-reveal>
 				<WorkIcon class="size-8" />
 				Experiencia
 			</h2>
@@ -110,7 +117,7 @@ import AboutMe from '../components/AboutMe.astro';
 		</div>
 
 		<SectionContainer id="proyectos" class="pt-8 md:pt-28 max-w-5xl mx-auto" >
-			<h2 class="text-3xl font-bold mb-8 flex items-center gap-x-3 " >
+			<h2 class="text-3xl font-bold mb-8 flex items-center gap-x-3 section-title" data-reveal>
 				<CodeIcon class="size-8" />
 				Proyectos
 			</h2>
@@ -141,7 +148,7 @@ import AboutMe from '../components/AboutMe.astro';
 		</div>
 
 		<SectionContainer id="sobre-mi" class="pt-8 md:pt-28 max-w-5xl mx-auto" >
-			<h2 class="text-3xl font-bold mb-8 flex items-center gap-x-3 " >
+			<h2 class="text-3xl font-bold mb-8 flex items-center gap-x-3 section-title" data-reveal>
 				<ProfileCheck class="size-8" />
 				Sobre mi
 			</h2>
@@ -156,6 +163,57 @@ import AboutMe from '../components/AboutMe.astro';
 			black 30%,
 			transparent
 		);
+	}
+
+	/* ── Fondo animado del inicio ── */
+	.hero-bg {
+		position: absolute;
+		inset: -4rem 0;
+		z-index: -1;
+		overflow: hidden;
+		pointer-events: none;
+		filter: blur(60px);
+		opacity: 0.55;
+	}
+	.blob {
+		position: absolute;
+		border-radius: 9999px;
+		mix-blend-mode: screen;
+		animation: blob-float 18s ease-in-out infinite;
+	}
+	.blob-1 { width: 18rem; height: 18rem; top: 5%; left: 10%; background: #6633ee; }
+	.blob-2 { width: 14rem; height: 14rem; top: 35%; right: 5%; background: #facc15; opacity: 0.35; animation-delay: -6s; animation-duration: 22s; }
+	.blob-3 { width: 16rem; height: 16rem; bottom: 0; left: 40%; background: #ec4899; opacity: 0.4; animation-delay: -12s; animation-duration: 26s; }
+	@keyframes blob-float {
+		0%, 100% { transform: translate(0, 0) scale(1); }
+		33% { transform: translate(40px, -30px) scale(1.1); }
+		66% { transform: translate(-30px, 25px) scale(0.92); }
+	}
+	:global(html.light) .hero-bg { opacity: 0.35; }
+	:global(html.light) .blob { mix-blend-mode: multiply; }
+
+	/* Línea amarilla que crece debajo de cada título de sección */
+	.section-title {
+		position: relative;
+		padding-bottom: 0.5rem;
+	}
+	.section-title::after {
+		content: "";
+		position: absolute;
+		left: 0;
+		bottom: 0;
+		height: 3px;
+		width: 0;
+		border-radius: 9999px;
+		background: linear-gradient(90deg, rgb(250 204 21), rgb(102 51 238));
+		transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.3s;
+	}
+	.section-title.is-revealed::after {
+		width: 4rem;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.blob { animation: none; }
 	}
 
 	@keyframes floatingArrow {
