@@ -101,6 +101,8 @@ export function initGallery() {
     if (animating || !lightbox!.hidden) return
     animating = true
     source = src
+    // Estadística: qué imágenes abre la gente (solo si Umami está cargado)
+    ;(window as any).umami?.track?.('Abrió imagen', { titulo: title })
 
     lbTrack.innerHTML = images
       .map(

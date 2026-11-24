@@ -196,19 +196,19 @@ const PROJECTS: Project[] = [
 
               <footer class="flex items-end justify-start mt-4 gap-x-4">
                 {github && (
-                  <LinkButton href={github}>
+                  <LinkButton href={github} data-umami-event="Click Code" data-umami-event-proyecto={title}>
                     <GitHub class="size-6" />
                     Code
                   </LinkButton>
                 )}
                 {link && (
-                  <LinkButton href={link}>
+                  <LinkButton href={link} data-umami-event="Click Link" data-umami-event-proyecto={title}>
                     <Link class="size-4" />
                     Link
                   </LinkButton>
                 )}
                 {store && (
-                  <LinkButton href={store}>
+                  <LinkButton href={store} data-umami-event="Click Google Play" data-umami-event-proyecto={title}>
                     <GooglePlay class="size-5" />
                     Google Play
                   </LinkButton>
