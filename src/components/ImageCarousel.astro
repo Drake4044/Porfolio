@@ -7,9 +7,12 @@
 interface Props {
   images: string[]
   title: string
+  // "phone": capturas verticales de una app, se muestran dentro de un marco de celular
+  device?: "desktop" | "phone"
 }
 
-const { images, title } = Astro.props
+const { images, title, device = "desktop" } = Astro.props
+const isPhone = device === "phone"
 const hasImages = images.length > 0
 ---
 
@@ -27,15 +30,28 @@ const hasImages = images.length > 0
     <div class="carousel-track flex h-full" data-carousel-track>
       {hasImages ? (
         images.map((image, i) => (
-          <div class="carousel-slide" role="group" aria-label={`${i + 1} de ${images.length}`}>
-            <img
-              src={image}
-              alt={`${title} - imagen ${i + 1}`}
-              class="w-full h-full object-contain pointer-events-none"
-              loading={i === 0 ? "eager" : "lazy"}
-              decoding="async"
-              draggable="false"
-            />
+          <div class:list={["carousel-slide", { "is-phone": isPhone }]} role="group" aria-label={`${i + 1} de ${images.length}`}>
+            {isPhone ? (
+              <div class="phone-frame">
+                <img
+                  src={image}
+                  alt={`${title} - imagen ${i + 1}`}
+                  class="w-full h-full object-cover pointer-events-none"
+                  loading={i === 0 ? "eager" : "lazy"}
+                  decoding="async"
+                  draggable="false"
+                />
+              </div>
+            ) : (
+              <img
+                src={image}
+                alt={`${title} - imagen ${i + 1}`}
+                class="w-full h-full object-contain pointer-events-none"
+                loading={i === 0 ? "eager" : "lazy"}
+                decoding="async"
+                draggable="false"
+              />
+            )}
           </div>
         ))
       ) : (
@@ -85,6 +101,23 @@ const hasImages = images.length > 0
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+  /* ── Marco de celular para capturas verticales ── */
+  .carousel-slide.is-phone {
+    padding-bottom: 1.5rem; /* deja lugar a los puntos debajo del celular */
+    background: radial-gradient(60% 70% at 50% 55%, rgb(102 51 238 / 0.35), transparent 70%);
+  }
+  .phone-frame {
+    height: 86%;
+    aspect-ratio: 780 / 1688;
+    padding: 5px;
+    border-radius: 1.4rem;
+    background: linear-gradient(145deg, #3a3a44, #0d0d12 55%, #2a2a33);
+    box-shadow: 0 0 0 1px rgb(255 255 255 / 0.12), 0 18px 40px rgb(0 0 0 / 0.55);
+  }
+  .phone-frame img {
+    display: block;
+    border-radius: 1.1rem;
   }
   .carousel-placeholder {
     flex-direction: column;

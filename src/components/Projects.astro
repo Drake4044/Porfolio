@@ -11,6 +11,11 @@ import Redux from "../icons/Redux.astro"
 import Sequelize from "../icons/Sequelize.astro"
 import Express from "../icons/Express.astro"
 import Typescript from "../icons/Typescript.astro"
+import Java from "../icons/Java.astro"
+import Android from "../icons/Android.astro"
+import Firebase from "../icons/Firebase.astro"
+import MediaPipe from "../icons/MediaPipe.astro"
+import GooglePlay from "../icons/GooglePlay.astro"
 import ImageCarousel from "./ImageCarousel.astro"
 
 const TAGS = {
@@ -60,34 +65,65 @@ const TAGS = {
     icon: Express,
   },
 }
+
+// Badges con estilo "marca": fondo oscuro teñido, borde y brillo del color
+// oficial de cada tecnología (ver .tag-brand en los estilos de abajo).
+const BRAND_TAGS = {
+  HTML: { name: "HTML", class: "tag-brand", color: "#E34F26", icon: HTML },
+  CSS: { name: "CSS", class: "tag-brand", color: "#2965F1", icon: CSS },
+  JAVASCRIPT: { name: "JavaScript", class: "tag-brand", color: "#F7DF1E", icon: Javascript },
+  JAVA: { name: "Java", class: "tag-brand", color: "#F89820", icon: Java },
+  ANDROID: { name: "Android", class: "tag-brand", color: "#3DDC84", icon: Android },
+  FIREBASE: { name: "Firebase", class: "tag-brand", color: "#FFCA28", icon: Firebase },
+  MEDIAPIPE: { name: "MediaPipe", class: "tag-brand", color: "#00ACC1", icon: MediaPipe },
+}
 interface Project {
   title: string
   description: string
   link: string
   github: string
   images: string[]
-  tags: { name: string; class: string; icon: any }[]
+  tags: { name: string; class: string; icon: any; color?: string }[]
+  // Opcional: link a Google Play. Si está vacío, el botón no se muestra.
+  store?: string
+  // "phone" muestra las capturas dentro de un marco de celular
+  device?: "desktop" | "phone"
   // Opcional: marca el proyecto como "en desarrollo" y muestra un aviso
   status?: { label: string; message: string }
 }
 
 const PROJECTS: Project[] = [
   {
-    // TODO: completar nombre, tecnologías, capturas y links de la app
-    title: "App de Ejercicios",
+    title: "Pulso",
     description:
-      "Aplicación para planificar y seguir rutinas de entrenamiento: armar los ejercicios de cada día, registrar series y repeticiones y ver el progreso a lo largo del tiempo.",
+      "App de entrenamiento en casa para Android. Permite armar una rutina semanal y seguir 36 ejercicios y 17 estiramientos con un coach con voz que funciona sin internet. Usa la cámara para contar repeticiones y corregir la postura, y tiene un esquema de músculos interactivo en 2D y 3D que muestra qué trabaja cada ejercicio. El progreso se guarda en un calendario y se sincroniza con la cuenta en la nube.",
     link: "",
-    github: "",
+    github: "https://github.com/Drake4044/Pulso-app",
+    // Mañana: pegar acá el link de Google Play y aparece el botón "Google Play"
+    store: "",
+    device: "phone",
     images: [
-      // Subí las capturas a /public/projects/app-ejercicios/ y listalas acá, por ejemplo:
-      // "/projects/app-ejercicios/app-ejercicios-0.webp",
+      "/projects/pulso/pulso-0.webp",
+      "/projects/pulso/pulso-1.webp",
+      "/projects/pulso/pulso-2.webp",
+      "/projects/pulso/pulso-3.webp",
+      "/projects/pulso/pulso-4.webp",
+      "/projects/pulso/pulso-5.webp",
+      "/projects/pulso/pulso-6.webp",
     ],
-    tags: [],
+    tags: [
+      BRAND_TAGS.HTML,
+      BRAND_TAGS.CSS,
+      BRAND_TAGS.JAVASCRIPT,
+      BRAND_TAGS.JAVA,
+      BRAND_TAGS.ANDROID,
+      BRAND_TAGS.FIREBASE,
+      BRAND_TAGS.MEDIAPIPE,
+    ],
     status: {
       label: "En desarrollo",
       message:
-        "Proyecto en proceso: estoy terminando las funcionalidades principales y puliendo el diseño. Pronto voy a sumar el link a la versión en vivo.",
+        "La app está en etapa final de desarrollo y pronto va a estar disponible para descargar en Google Play.",
     },
   },
 {
@@ -148,14 +184,14 @@ const PROJECTS: Project[] = [
 
 <div class="flex flex-col gap-y-4">
   {
-    PROJECTS.map(({ images, title, description, tags, link, github, status }, index) => (
+    PROJECTS.map(({ images, title, description, tags, link, github, store, device, status }, index) => (
       <>
         <article class="flex flex-col space-x-0 space-y-8 md:flex-row md:space-x-8 md:space-y-0 transition-all duration-100 p-4 project-card">
           <div class="w-full md:w-[45%] z-10 translate-y-36 md:translate-y-0 md:translate-x-60 transition-all duration-500 image-container">
             <div class="relative w-full transition duration-500 ease-in-out transform scale-75 md:scale-100">
               <!-- Tarjeta con inclinación 3D y brillo que sigue al mouse -->
               <div class="project-tilt relative w-full aspect-[4/3] rounded-xl overflow-hidden shadow-xl md:shadow-2xl ring-1 ring-white/10 bg-black/20" data-tilt>
-                <ImageCarousel images={images} title={title} />
+                <ImageCarousel images={images} title={title} device={device} />
                 <div class="project-spotlight" aria-hidden="true"></div>
               </div>
             </div>
@@ -176,7 +212,10 @@ const PROJECTS: Project[] = [
                 <ul class="grid grid-cols-3 xs:grid-cols-4 gap-2">
                   {tags.map((tag) => (
                     <li>
-                      <span class={`tag-pill flex justify-center items-center gap-x-2 rounded-full text-xs ${tag.class} py-1 px-2`}>
+                      <span
+                        class={`tag-pill flex justify-center items-center gap-x-2 rounded-full text-xs ${tag.class} py-1 px-2`}
+                        style={tag.color ? `--brand: ${tag.color}` : undefined}
+                      >
                         <tag.icon class="size-5" />
                         {tag.name}
                       </span>
@@ -205,6 +244,12 @@ const PROJECTS: Project[] = [
                   <LinkButton href={link}>
                     <Link class="size-4" />
                     Link
+                  </LinkButton>
+                )}
+                {store && (
+                  <LinkButton href={store}>
+                    <GooglePlay class="size-5" />
+                    Google Play
                   </LinkButton>
                 )}
               </footer>
@@ -297,6 +342,26 @@ const PROJECTS: Project[] = [
   }
   .tag-pill:hover {
     transform: translateY(-2px) scale(1.05);
+  }
+
+  /* ── Badges con color de marca ── */
+  .tag-brand {
+    font-weight: 600;
+    color: #f3f4f6;
+    background: color-mix(in srgb, var(--brand) 16%, rgb(17 17 27 / 0.85));
+    border: 1px solid color-mix(in srgb, var(--brand) 55%, transparent);
+    box-shadow: inset 0 0 10px color-mix(in srgb, var(--brand) 18%, transparent);
+    transition: transform 0.2s, box-shadow 0.25s, border-color 0.25s;
+  }
+  .tag-brand:hover {
+    border-color: var(--brand);
+    box-shadow: 0 0 14px color-mix(in srgb, var(--brand) 55%, transparent), inset 0 0 10px color-mix(in srgb, var(--brand) 25%, transparent);
+  }
+  :global(html.light) .tag-brand {
+    color: #111827;
+    background: color-mix(in srgb, var(--brand) 14%, #ffffff);
+    border-color: color-mix(in srgb, var(--brand) 70%, #000000 10%);
+    box-shadow: none;
   }
 
   /* ── Proyecto en desarrollo ── */
