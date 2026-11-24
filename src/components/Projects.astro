@@ -18,65 +18,26 @@ import MediaPipe from "../icons/MediaPipe.astro"
 import GooglePlay from "../icons/GooglePlay.astro"
 import ImageCarousel from "./ImageCarousel.astro"
 
-const TAGS = {
-  TAILWIND: {
-    name: "Tailwind",
-    class: "bg-[#003159] text-white",
-    icon: Tailwind,
-  },
-  JAVASCRIPT: {
-    name: "JavaScript",
-    class: "bg-yellow-500 text-black font-bold",
-    icon: Javascript,
-  },
-  TYPESCRIPT: {
-    name: "TypeScript",
-    class: "bg-blue-500 text-white font-bold",
-    icon: Typescript,
-  },
-  HTML: {
-    name: "HTML",
-    class: "bg-orange-400 text-black font-bold",
-    icon: HTML,
-  },
-  CSS: {
-    name: "CSS",
-    class: "bg-blue-500 text-black font-bold",
-    icon: CSS,
-  },
-  REACT: {
-    name: "React",
-    class: "bg-sky-600 text-black font-bold",
-    icon: React,
-  },
-  REDUX: {
-    name: "Redux",
-    class: "bg-indigo-400 text-black font-bold",
-    icon: Redux,
-  },
-  SEQUELIZE: {
-    name: "Sequelize",
-    class: "bg-sky-800 text-black font-bold",
-    icon: Sequelize,
-  },
-  EXPRESS: {
-    name: "Express",
-    class: "bg-slate-500 text-black font-bold",
-    icon: Express,
-  },
-}
-
 // Badges con estilo "marca": fondo oscuro teñido, borde y brillo del color
 // oficial de cada tecnología (ver .tag-brand en los estilos de abajo).
-const BRAND_TAGS = {
-  HTML: { name: "HTML", class: "tag-brand", color: "#E34F26", icon: HTML },
-  CSS: { name: "CSS", class: "tag-brand", color: "#2965F1", icon: CSS },
-  JAVASCRIPT: { name: "JavaScript", class: "tag-brand", color: "#F7DF1E", icon: Javascript },
-  JAVA: { name: "Java", class: "tag-brand", color: "#F89820", icon: Java },
-  ANDROID: { name: "Android", class: "tag-brand", color: "#3DDC84", icon: Android },
-  FIREBASE: { name: "Firebase", class: "tag-brand", color: "#FFCA28", icon: Firebase },
-  MEDIAPIPE: { name: "MediaPipe", class: "tag-brand", color: "#00ACC1", icon: MediaPipe },
+const brand = (name: string, color: string, icon: any) => ({ name, class: "tag-brand", color, icon })
+
+const TAGS = {
+  HTML: brand("HTML", "#E34F26", HTML),
+  CSS: brand("CSS", "#2965F1", CSS),
+  JAVASCRIPT: brand("JavaScript", "#F7DF1E", Javascript),
+  TYPESCRIPT: brand("TypeScript", "#3178C6", Typescript),
+  TAILWIND: brand("Tailwind", "#38BDF8", Tailwind),
+  REACT: brand("React", "#61DAFB", React),
+  REDUX: brand("Redux", "#764ABC", Redux),
+  SEQUELIZE: brand("Sequelize", "#52B0E7", Sequelize),
+  EXPRESS: brand("Express", "#A8B2BD", Express), // gris plata: el negro oficial no se ve en fondo oscuro
+  JAVA: brand("Java", "#F89820", Java),
+  ANDROID: brand("Android", "#3DDC84", Android),
+  FIREBASE: brand("Firebase", "#FFCA28", Firebase),
+  MEDIAPIPE: brand("MediaPipe", "#00ACC1", MediaPipe),
 }
+
 interface Project {
   title: string
   description: string
@@ -112,13 +73,13 @@ const PROJECTS: Project[] = [
       "/projects/pulso/pulso-6.webp",
     ],
     tags: [
-      BRAND_TAGS.HTML,
-      BRAND_TAGS.CSS,
-      BRAND_TAGS.JAVASCRIPT,
-      BRAND_TAGS.JAVA,
-      BRAND_TAGS.ANDROID,
-      BRAND_TAGS.FIREBASE,
-      BRAND_TAGS.MEDIAPIPE,
+      TAGS.HTML,
+      TAGS.CSS,
+      TAGS.JAVASCRIPT,
+      TAGS.JAVA,
+      TAGS.ANDROID,
+      TAGS.FIREBASE,
+      TAGS.MEDIAPIPE,
     ],
     status: {
       label: "En desarrollo",
