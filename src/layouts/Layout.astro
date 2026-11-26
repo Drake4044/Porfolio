@@ -10,9 +10,6 @@ interface Props {
 }
 
 const { title } = Astro.props;
-// ID del sitio en Umami (estadísticas). Se carga en Netlify como variable de entorno
-// PUBLIC_UMAMI_ID. Si no está, no se agrega ningún script de estadísticas.
-const umamiId = import.meta.env.PUBLIC_UMAMI_ID
 ---
 
 <!doctype html>
@@ -46,19 +43,16 @@ const umamiId = import.meta.env.PUBLIC_UMAMI_ID
 		<ViewTransitions />
 
 		<!-- Tus propias visitas no cuentan: entrá una vez a /?yo=1 desde cada dispositivo tuyo
-		     (y /?yo=0 para volver a contarlas). Va antes de Umami para que la ignore. -->
+		     (y /?yo=0 para volver a contarlas). -->
 		<script is:inline>
 			(function () {
 				try {
 					const yo = new URLSearchParams(location.search).get('yo')
-					if (yo === '1') { localStorage.setItem('pf-owner', '1'); localStorage.setItem('umami.disabled', '1') }
-					if (yo === '0') { localStorage.removeItem('pf-owner'); localStorage.removeItem('umami.disabled') }
+					if (yo === '1') localStorage.setItem('pf-owner', '1')
+					if (yo === '0') localStorage.removeItem('pf-owner')
 				} catch (e) {}
 			})()
 		</script>
-		{umamiId && (
-			<script is:inline defer src="https://cloud.umami.is/script.js" data-website-id={umamiId}></script>
-		)}
 
 		<!-- Aplica el tema guardado ANTES de pintar la página (evita el "flash" de color) -->
 		<script is:inline>
@@ -89,30 +83,10 @@ const umamiId = import.meta.env.PUBLIC_UMAMI_ID
 </html>
 <script>
 	import { initGallery } from '../scripts/gallery'
+	import { initTracker } from '../scripts/tracker'
 
-	// ── Aviso de visita por Telegram ──
-	// Una sola vez por visita (no en cada recarga), nunca en desarrollo ni para vos.
-	const notifyVisit = () => {
-		try {
-			if (import.meta.env.DEV) return
-			if (localStorage.getItem('pf-owner') === '1') return
-			if (sessionStorage.getItem('pf-visit-sent')) return
-			sessionStorage.setItem('pf-visit-sent', '1')
-		} catch (e) {
-			return
-		}
-		fetch('/api/visita', {
-			method: 'POST',
-			keepalive: true,
-			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify({
-				path: location.pathname,
-				referrer: document.referrer,
-				lang: navigator.language,
-			}),
-		}).catch(() => {})
-	}
-	notifyVisit()
+	// ── Registro anónimo de visitas (panel privado + avisos) ──
+	initTracker()
 
 	// ── Carruseles + visor a pantalla completa ──
 	document.addEventListener('astro:page-load', () => {
