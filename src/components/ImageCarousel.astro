@@ -1,0 +1,188 @@
+---
+// Carrusel de imágenes de un proyecto.
+// - Se mueve solo cada 4 s (se pausa con el mouse encima o fuera de pantalla)
+// - Se desliza con el dedo / arrastrando con el mouse
+// - Botones anterior/siguiente y puntos
+// - Click o tap en la imagen → la abre a pantalla completa (Lightbox)
+interface Props {
+  images: string[]
+  title: string
+  // "phone": capturas verticales de una app, se muestran dentro de un marco de celular
+  device?: "desktop" | "phone"
+}
+
+const { images, title, device = "desktop" } = Astro.props
+const isPhone = device === "phone"
+const hasImages = images.length > 0
+---
+
+<div
+  class="carousel group/carousel relative w-full h-full select-none outline-none focus-visible:ring-2 focus-visible:ring-yellow-400 rounded-xl"
+  data-carousel
+  data-title={title}
+  data-images={JSON.stringify(images)}
+  tabindex="0"
+  role="region"
+  aria-roledescription="carrusel"
+  aria-label={`Imágenes de ${title}`}
+>
+  <div class="carousel-viewport w-full h-full overflow-hidden" data-carousel-viewport>
+    <div class="carousel-track flex h-full" data-carousel-track>
+      {hasImages ? (
+        images.map((image, i) => (
+          <div class:list={["carousel-slide", { "is-phone": isPhone }]} role="group" aria-label={`${i + 1} de ${images.length}`}>
+            {isPhone ? (
+              <div class="phone-frame">
+                <img
+                  src={image}
+                  alt={`${title} - imagen ${i + 1}`}
+                  class="w-full h-full object-cover pointer-events-none"
+                  loading={i === 0 ? "eager" : "lazy"}
+                  decoding="async"
+                  draggable="false"
+                />
+              </div>
+            ) : (
+              <img
+                src={image}
+                alt={`${title} - imagen ${i + 1}`}
+                class="w-full h-full object-contain pointer-events-none"
+                loading={i === 0 ? "eager" : "lazy"}
+                decoding="async"
+                draggable="false"
+              />
+            )}
+          </div>
+        ))
+      ) : (
+        <div class="carousel-slide carousel-placeholder">
+          <svg xmlns="http://www.w3.org/2000/svg" class="size-10 opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 8h.01"/><path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z"/><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5"/><path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3"/></svg>
+          <span class="text-sm opacity-80">Capturas próximamente</span>
+        </div>
+      )}
+    </div>
+  </div>
+
+  {images.length > 1 && (
+    <>
+      <button type="button" class="carousel-btn left-2" data-carousel-prev aria-label="Imagen anterior">
+        <svg xmlns="http://www.w3.org/2000/svg" class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6l6 6"/></svg>
+      </button>
+      <button type="button" class="carousel-btn right-2" data-carousel-next aria-label="Imagen siguiente">
+        <svg xmlns="http://www.w3.org/2000/svg" class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6l-6 6"/></svg>
+      </button>
+      <div class="carousel-dots absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2 z-10" data-carousel-dots></div>
+    </>
+  )}
+
+  {hasImages && (
+    <span class="carousel-expand" aria-hidden="true">
+      <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4l4 0l0 4"/><path d="M14 10l6 -6"/><path d="M8 20l-4 0l0 -4"/><path d="M4 20l6 -6"/></svg>
+    </span>
+  )}
+</div>
+
+<style is:global>
+  .carousel-viewport {
+    touch-action: pan-y; /* deja hacer scroll vertical en el celular */
+    cursor: zoom-in;
+  }
+  .carousel.is-dragging .carousel-viewport {
+    cursor: grabbing;
+  }
+  .carousel-track {
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+  .carousel-slide {
+    flex: 0 0 100%;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* ── Marco de celular para capturas verticales ── */
+  .carousel-slide.is-phone {
+    padding-bottom: 1.5rem; /* deja lugar a los puntos debajo del celular */
+    background: radial-gradient(60% 70% at 50% 55%, rgb(102 51 238 / 0.35), transparent 70%);
+  }
+  .phone-frame {
+    height: 86%;
+    aspect-ratio: 780 / 1688;
+    padding: 5px;
+    border-radius: 1.4rem;
+    background: linear-gradient(145deg, #3a3a44, #0d0d12 55%, #2a2a33);
+    box-shadow: 0 0 0 1px rgb(255 255 255 / 0.12), 0 18px 40px rgb(0 0 0 / 0.55);
+  }
+  .phone-frame img {
+    display: block;
+    border-radius: 1.1rem;
+  }
+  .carousel-placeholder {
+    flex-direction: column;
+    gap: 0.5rem;
+    color: rgb(250 204 21);
+    background: repeating-linear-gradient(45deg, rgb(255 255 255 / 0.03) 0 12px, transparent 12px 24px);
+    cursor: default;
+  }
+  .carousel-btn {
+    position: absolute;
+    top: 50%;
+    z-index: 10;
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 9999px;
+    color: white;
+    background: rgb(0 0 0 / 0.55);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgb(255 255 255 / 0.15);
+    transform: translateY(-50%);
+    transition: opacity 0.3s, background 0.3s, transform 0.2s;
+  }
+  .carousel-btn:hover {
+    background: rgb(0 0 0 / 0.8);
+    color: rgb(250 204 21);
+  }
+  .carousel-btn:active {
+    transform: translateY(-50%) scale(0.9);
+  }
+  /* En desktop los botones aparecen al pasar el mouse; en touch siempre visibles */
+  @media (hover: hover) {
+    .carousel .carousel-btn,
+    .carousel .carousel-expand {
+      opacity: 0;
+    }
+    .carousel:hover .carousel-btn,
+    .carousel:focus-within .carousel-btn,
+    .carousel:hover .carousel-expand {
+      opacity: 1;
+    }
+  }
+  .carousel-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: rgb(255 255 255 / 0.5);
+    box-shadow: 0 0 4px rgb(0 0 0 / 0.6);
+    transition: all 0.3s ease;
+  }
+  .carousel-dot.active {
+    width: 1.25rem;
+    background: rgb(250 204 21);
+  }
+  .carousel-expand {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 10;
+    padding: 0.35rem;
+    border-radius: 0.5rem;
+    color: white;
+    background: rgb(0 0 0 / 0.55);
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+</style>

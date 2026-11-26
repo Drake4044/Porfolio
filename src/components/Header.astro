@@ -39,7 +39,9 @@ const contactItem = {
   </button>
 
   <!-- Navegación desktop -->
-  <nav class="hidden md:flex px-6 text-sm font-medium rounded-full text-white-600/90 justify-center items-center gap-x-6">
+  <nav class="desktop-nav hidden md:flex relative px-6 text-sm font-medium rounded-full text-white-600/90 justify-center items-center gap-x-6">
+    <!-- Indicador que se desliza hasta la sección activa -->
+    <span class="nav-indicator" id="nav-indicator" aria-hidden="true"></span>
     {
       navItems.map((link) => (
         <a
@@ -59,10 +61,30 @@ const contactItem = {
     >
       Contacto
     </button>
+    <button
+      type="button"
+      class="theme-toggle"
+      data-theme-toggle
+      aria-label="Cambiar entre modo claro y oscuro"
+      title="Cambiar tema"
+    >
+      <svg class="icon-sun size-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"/></svg>
+      <svg class="icon-moon size-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"/></svg>
+    </button>
   </nav>
 
   <!-- Menú móvil actualizado -->
-  <div class="md:hidden">
+  <div class="md:hidden flex items-center gap-1">
+    <button
+      type="button"
+      class="theme-toggle"
+      data-theme-toggle
+      aria-label="Cambiar entre modo claro y oscuro"
+      title="Cambiar tema"
+    >
+      <svg class="icon-sun size-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"/></svg>
+      <svg class="icon-moon size-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"/></svg>
+    </button>
     <button
       id="menu-toggle"
       class="text-white p-2 focus:outline-none"
@@ -86,7 +108,7 @@ const contactItem = {
 
     <nav
       id="mobile-menu"
-      class="fixed right-[-100vw] top-[45px] w-[calc(100%-2rem)] shadow-lg transform transition-all duration-300 ease-in-out rounded-b-2xl border border-white/10 mobile-nav"
+      class="fixed right-[-100vw] top-[45px] w-[calc(100%-2rem)] shadow-lg transform transition-all duration-200 ease-out rounded-b-2xl border border-white/10 mobile-nav"
     >
       <div class="flex flex-col py-2">
         {
@@ -107,6 +129,39 @@ const contactItem = {
 
 <script>
   document.addEventListener("astro:page-load", () => {
+    // ── Botón de modo claro / oscuro ──
+    document.querySelectorAll<HTMLButtonElement>("[data-theme-toggle]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const root = document.documentElement
+        const toLight = !root.classList.contains("light")
+        root.classList.add("theme-transition")
+        root.classList.toggle("light", toLight)
+        root.classList.toggle("dark", !toLight)
+        try { localStorage.setItem("theme", toLight ? "light" : "dark") } catch (e) {}
+        window.setTimeout(() => root.classList.remove("theme-transition"), 500)
+      })
+    })
+
+    // ── Indicador deslizante del menú de escritorio ──
+    const indicator = document.getElementById("nav-indicator")
+    const moveIndicator = () => {
+      if (!indicator) return
+      const active = document.querySelector<HTMLElement>(".desktop-nav a.text-yellow-400")
+      if (!active) {
+        indicator.style.opacity = "0"
+        return
+      }
+      indicator.style.opacity = "1"
+      indicator.style.width = `${active.offsetWidth - 16}px`
+      indicator.style.transform = `translateX(${active.offsetLeft + 8}px)`
+    }
+    // Se mueve cada vez que cambia el link activo (las clases las pone el código de abajo)
+    const navMutation = new MutationObserver(() => moveIndicator())
+    document.querySelectorAll(".desktop-nav a").forEach((a) =>
+      navMutation.observe(a, { attributes: true, attributeFilter: ["class"] })
+    )
+    window.addEventListener("resize", moveIndicator)
+
     const sections = document.querySelectorAll("section")
     const navItems = document.querySelectorAll("header nav a")
     const menuToggle = document.getElementById("menu-toggle")
@@ -172,43 +227,74 @@ const contactItem = {
       e.stopPropagation()
     })
 
-    // Función para scroll suave personalizado
-    const smoothScroll = (target: Element, duration: number = 800) => {
-      const headerHeight = document.getElementById('mobile-header')?.offsetHeight || 0;
-      const isDesktop = window.innerWidth >= 768;
-      const isHomeSection = target.id === 'top';
-      const extraOffset = isDesktop && !isHomeSection ? 80 : 0; // Solo aplicar offset en desktop y no en inicio
-      const targetPosition = target.getBoundingClientRect().top + window.scrollY - headerHeight + extraOffset;
-      const startPosition = window.scrollY
-      const distance = targetPosition - startPosition
-      let startTime: number | null = null
+    // ── Scroll rápido hacia cada sección ──
+    // Antes: 800 ms con easeInOutCubic (arranca lento, por eso se sentía "pesado").
+    // Ahora: duración según la distancia (entre 250 y 550 ms) con easeOutQuart,
+    // que arranca a toda velocidad y frena suave al llegar.
+    let scrollFrame: number | null = null
+    let navLock = false // mientras dura el scroll, el link activo no "salta" entre secciones
 
-      const animation = (currentTime: number) => {
-        if (startTime === null) startTime = currentTime
-        const timeElapsed = currentTime - startTime
-        const progress = Math.min(timeElapsed / duration, 1)
+    const cancelScroll = () => {
+      if (scrollFrame !== null) cancelAnimationFrame(scrollFrame)
+      scrollFrame = null
+      navLock = false
+    }
+    // Si el usuario toca o usa la rueda en medio del scroll, le devolvemos el control
+    window.addEventListener('wheel', cancelScroll, { passive: true })
+    window.addEventListener('touchstart', cancelScroll, { passive: true })
 
-        // Función de easing para movimiento más natural
-        const easeInOutCubic = (t: number) => {
-          return t < 0.5
-            ? 4 * t * t * t
-            : 1 - Math.pow(-2 * t + 2, 3) / 2
-        }
-
-        window.scrollTo({
-          top: startPosition + (distance * easeInOutCubic(progress)),
-          behavior: 'auto'
-        })
-
-        if (progress < 1) {
-          requestAnimationFrame(animation)
-        }
-      }
-
-      requestAnimationFrame(animation)
+    const getTargetTop = (target: Element) => {
+      if (target.id === 'top') return 0 // Inicio: arriba de todo
+      const headerHeight = document.getElementById('mobile-header')?.offsetHeight || 0
+      const isDesktop = window.innerWidth >= 768
+      const isHomeSection = target.id === 'top'
+      const extraOffset = isDesktop && !isHomeSection ? 80 : 0
+      return Math.max(0, target.getBoundingClientRect().top + window.scrollY - headerHeight + extraOffset)
     }
 
-    // Aplicar scroll suave a todos los enlaces de navegación (móvil y desktop)
+    const smoothScroll = (target: Element, onDone?: () => void) => {
+      cancelScroll()
+      const startPosition = window.scrollY
+      const distance = getTargetTop(target) - startPosition
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      if (reduceMotion || Math.abs(distance) < 2) {
+        window.scrollTo({ top: startPosition + distance, behavior: 'instant' })
+        onDone?.()
+        return
+      }
+      const duration = Math.min(550, Math.max(250, Math.abs(distance) * 0.12))
+      const easeOutQuart = (t: number) => 1 - Math.pow(1 - t, 4)
+      let startTime: number | null = null
+      navLock = true
+
+      const step = (now: number) => {
+        if (startTime === null) startTime = now
+        const progress = Math.min((now - startTime) / duration, 1)
+        window.scrollTo({ top: startPosition + distance * easeOutQuart(progress), behavior: 'instant' })
+        if (progress < 1) {
+          scrollFrame = requestAnimationFrame(step)
+        } else {
+          scrollFrame = null
+          navLock = false
+          // Corrección final por si alguna animación cambió la altura durante el viaje
+          const finalTop = getTargetTop(target)
+          if (Math.abs(finalTop - window.scrollY) > 4) window.scrollTo({ top: finalTop, behavior: 'instant' })
+          onDone?.()
+        }
+      }
+      scrollFrame = requestAnimationFrame(step)
+    }
+
+    // Marca un link como activo al instante (feedback inmediato al tocar)
+    const setActiveLink = (sectionId: string) => {
+      document.querySelectorAll('header nav a').forEach((l) => {
+        const isActive = l.getAttribute('aria-label') === sectionId
+        l.classList.toggle('text-yellow-400', isActive)
+        l.classList.toggle('text-shadow', isActive)
+      })
+    }
+
+    // Aplicar el scroll a todos los enlaces de navegación (móvil y desktop)
     const allNavLinks = document.querySelectorAll('#mobile-menu a, .desktop-nav-link')
     allNavLinks.forEach(link => {
       link.addEventListener("click", (e) => {
@@ -217,17 +303,14 @@ const contactItem = {
         if (href?.startsWith("/#")) {
           const targetId = href.substring(2)
           const targetElement = document.getElementById(targetId)
-          
-          if (targetElement) {
-            // Cerrar el menú móvil si está abierto
-            if (isMenuOpen) {
-              closeMenu()
-            }
-            
-            // Aplicar scroll suave
-            smoothScroll(targetElement)
 
-            // Actualizar la URL sin recargar la página
+          if (targetElement) {
+            setActiveLink(targetId)
+            // La sección destino aparece ya visible, sin esperar su animación de entrada
+            targetElement.classList.add('section-visible')
+            targetElement.classList.remove('section-hidden')
+            if (isMenuOpen) closeMenu()
+            smoothScroll(targetElement)
             history.pushState(null, "", href)
           }
         } else {
@@ -238,6 +321,7 @@ const contactItem = {
 
     // Observer mejorado para las secciones
     const callback = (entries: IntersectionObserverEntry[]) => {
+      if (navLock) return
       entries.forEach((entry) => {
         const targetId = entry.target.id
         const correspondingLinks = document.querySelectorAll(`a[aria-label="${targetId}"]`)
@@ -296,6 +380,7 @@ const contactItem = {
 
     // Función mejorada para actualizar enlaces activos al hacer scroll
     const updateActiveLinks = () => {
+      if (navLock) return
       const scrollPosition = window.scrollY + window.innerHeight * 0.5
       const sections = document.querySelectorAll('section')
       let activeSection: string | null = null
@@ -369,8 +454,14 @@ const contactItem = {
       sectionObserver.observe(section)
     })
 
+    moveIndicator()
+
     // Cleanup mejorado
     return () => {
+      navMutation.disconnect()
+      cancelScroll()
+      window.removeEventListener('wheel', cancelScroll)
+      window.removeEventListener('touchstart', cancelScroll)
         observer.disconnect()
       sectionObserver.disconnect()
       window.removeEventListener('scroll', updateActiveLinks)
@@ -379,6 +470,91 @@ const contactItem = {
 </script>
 
 <style>
+  /* ── Botón de tema ── */
+  .theme-toggle {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 9999px;
+    color: rgb(250 204 21);
+    transition: background 0.3s, transform 0.3s;
+  }
+  .theme-toggle:hover {
+    background: rgb(255 255 255 / 0.1);
+    transform: rotate(-15deg);
+  }
+  .theme-toggle svg {
+    position: absolute;
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s;
+  }
+  /* En oscuro se ve la luna; en claro, el sol */
+  .theme-toggle .icon-sun { opacity: 0; transform: rotate(-90deg) scale(0.5); }
+  :global(html.light) .theme-toggle .icon-sun { opacity: 1; transform: none; }
+  :global(html.light) .theme-toggle .icon-moon { opacity: 0; transform: rotate(90deg) scale(0.5); }
+  :global(html.light) .theme-toggle { color: #b45309; }
+  :global(html.light) .theme-toggle:hover { background: rgb(0 0 0 / 0.06); }
+
+  /* ── Indicador del link activo ── */
+  .nav-indicator {
+    position: absolute;
+    left: 0;
+    bottom: 4px;
+    height: 2px;
+    width: 0;
+    opacity: 0;
+    border-radius: 9999px;
+    background: rgb(250 204 21);
+    box-shadow: 0 0 8px rgb(250 204 21 / 0.8);
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), width 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s;
+    pointer-events: none;
+  }
+
+  /* ── Header en modo claro ── */
+  @media (min-width: 768px) {
+    :global(html.light) nav {
+      animation-name: nav-shadown-light;
+    }
+    @keyframes nav-shadown-light {
+      to {
+        @apply shadow-lg ring-1 backdrop-blur ring-black/10;
+        background: radial-gradient(125% 125% at 50% 30%, #fff 40%, #ddd6fe 100%);
+      }
+    }
+  }
+  @media (max-width: 767px) {
+    :global(html.light) .mobile-header {
+      background: radial-gradient(125% 125% at 50% 30%, #fff 40%, #ddd6fe 100%);
+      --tw-ring-color: rgb(0 0 0 / 0.1);
+    }
+  }
+  :global(html.light) .mobile-nav {
+    background: radial-gradient(125% 125% at 50% 30%, #fff 40%, #ddd6fe 100%);
+  }
+  :global(html.light) #menu-toggle,
+  :global(html.light) .mobile-menu-link,
+  :global(html.light) .desktop-nav-link,
+  :global(html.light) .contact-link {
+    color: #1f2937;
+  }
+  :global(html.light) .text-shadow,
+  :global(html.light) .mobile-menu-link.text-yellow-400 {
+    color: #b45309;
+    text-shadow: none;
+  }
+  :global(html.light) .contact-link {
+    animation-name: contactPulseLight;
+  }
+  @keyframes contactPulseLight {
+    0%, 100% { color: #1f2937; }
+    50% { color: #b45309; }
+  }
+  :global(html.light) .nav-indicator {
+    background: #b45309;
+    box-shadow: none;
+  }
+
   .text-shadow {
     text-shadow: 2px 2px 4px rgba(255, 225, 0, 0.7);
     color: rgb(250, 204, 21);
@@ -534,6 +710,10 @@ const contactItem = {
   }
 
   /* Actualizar el estilo hover y activo */
+  .mobile-menu-link:active {
+    background: rgb(250 204 21 / 0.15);
+    transform: scale(0.97);
+  }
   .mobile-menu-link:hover,
   .mobile-menu-link.text-yellow-400 {
     color: rgb(250, 204, 21);
@@ -543,7 +723,7 @@ const contactItem = {
 
   /* Estilos para la animación de las secciones */
   .section-animation {
-    transition: all 0.8s ease;
+    transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .section-hidden {

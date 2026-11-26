@@ -11,55 +11,82 @@ import Redux from "../icons/Redux.astro"
 import Sequelize from "../icons/Sequelize.astro"
 import Express from "../icons/Express.astro"
 import Typescript from "../icons/Typescript.astro"
+import Java from "../icons/Java.astro"
+import Android from "../icons/Android.astro"
+import Firebase from "../icons/Firebase.astro"
+import MediaPipe from "../icons/MediaPipe.astro"
+import GooglePlay from "../icons/GooglePlay.astro"
+import ImageCarousel from "./ImageCarousel.astro"
+
+// Badges con estilo "marca": fondo oscuro teñido, borde y brillo del color
+// oficial de cada tecnología (ver .tag-brand en los estilos de abajo).
+const brand = (name: string, color: string, icon: any) => ({ name, class: "tag-brand", color, icon })
 
 const TAGS = {
-  TAILWIND: {
-    name: "Tailwind",
-    class: "bg-[#003159] text-white",
-    icon: Tailwind,
-  },
-  JAVASCRIPT: {
-    name: "JavaScript",
-    class: "bg-yellow-500 text-black font-bold",
-    icon: Javascript,
-  },
-  TYPESCRIPT: {
-    name: "TypeScript",
-    class: "bg-blue-500 text-white font-bold",
-    icon: Typescript,
-  },
-  HTML: {
-    name: "HTML",
-    class: "bg-orange-400 text-black font-bold",
-    icon: HTML,
-  },
-  CSS: {
-    name: "CSS",
-    class: "bg-blue-500 text-black font-bold",
-    icon: CSS,
-  },
-  REACT: {
-    name: "React",
-    class: "bg-sky-600 text-black font-bold",
-    icon: React,
-  },
-  REDUX: {
-    name: "Redux",
-    class: "bg-indigo-400 text-black font-bold",
-    icon: Redux,
-  },
-  SEQUELIZE: {
-    name: "Sequelize",
-    class: "bg-sky-800 text-black font-bold",
-    icon: Sequelize,
-  },
-  EXPRESS: {
-    name: "Express",
-    class: "bg-slate-500 text-black font-bold",
-    icon: Express,
-  },
+  HTML: brand("HTML", "#E34F26", HTML),
+  CSS: brand("CSS", "#2965F1", CSS),
+  JAVASCRIPT: brand("JavaScript", "#F7DF1E", Javascript),
+  TYPESCRIPT: brand("TypeScript", "#3178C6", Typescript),
+  TAILWIND: brand("Tailwind", "#38BDF8", Tailwind),
+  REACT: brand("React", "#61DAFB", React),
+  REDUX: brand("Redux", "#764ABC", Redux),
+  SEQUELIZE: brand("Sequelize", "#52B0E7", Sequelize),
+  EXPRESS: brand("Express", "#A8B2BD", Express), // gris plata: el negro oficial no se ve en fondo oscuro
+  JAVA: brand("Java", "#F89820", Java),
+  ANDROID: brand("Android", "#3DDC84", Android),
+  FIREBASE: brand("Firebase", "#FFCA28", Firebase),
+  MEDIAPIPE: brand("MediaPipe", "#00ACC1", MediaPipe),
 }
-const PROJECTS = [
+
+interface Project {
+  title: string
+  description: string
+  link: string
+  github: string
+  images: string[]
+  tags: { name: string; class: string; icon: any; color?: string }[]
+  // Opcional: link a Google Play. Si está vacío, el botón no se muestra.
+  store?: string
+  // "phone" muestra las capturas dentro de un marco de celular
+  device?: "desktop" | "phone"
+  // Opcional: marca el proyecto como "en desarrollo" y muestra un aviso
+  status?: { label: string; message: string }
+}
+
+const PROJECTS: Project[] = [
+  {
+    title: "Pulso",
+    description:
+      "App de entrenamiento en casa para Android. Permite armar una rutina semanal y seguir 36 ejercicios y 17 estiramientos con un coach con voz que funciona sin internet. Usa la cámara para contar repeticiones y corregir la postura, y tiene un esquema de músculos interactivo en 2D y 3D que muestra qué trabaja cada ejercicio. El progreso se guarda en un calendario y se sincroniza con la cuenta en la nube.",
+    link: "",
+    github: "https://github.com/Drake4044/Pulso-app",
+    // Mañana: pegar acá el link de Google Play y aparece el botón "Google Play"
+    store: "",
+    device: "phone",
+    images: [
+      "/projects/pulso/pulso-0.webp",
+      "/projects/pulso/pulso-1.webp",
+      "/projects/pulso/pulso-2.webp",
+      "/projects/pulso/pulso-3.webp",
+      "/projects/pulso/pulso-4.webp",
+      "/projects/pulso/pulso-5.webp",
+      "/projects/pulso/pulso-6.webp",
+    ],
+    tags: [
+      TAGS.HTML,
+      TAGS.CSS,
+      TAGS.JAVASCRIPT,
+      TAGS.JAVA,
+      TAGS.ANDROID,
+      TAGS.FIREBASE,
+      TAGS.MEDIAPIPE,
+    ],
+    status: {
+      label: "En desarrollo",
+      message:
+        "La app está en etapa final de desarrollo y pronto va a estar disponible para descargar en Google Play.",
+    },
+  },
 {
     title: "Carta AI - Landing Page",
     description:
@@ -78,7 +105,7 @@ const PROJECTS = [
     title: "Carta AI - Ecommerce",
     description:
       "El ecommerce de Carta AI permite mostrar restaurantes afiliados según la ubicacion del usuario y sus preferencias gastronómicas, facilitando la promoción de sus platos y mejorando la conexión entre clientes y comercios locales.",
-    link: "ecommerce-hungry-hub.lovable.app",
+    link: "https://ecommerce-hungry-hub.lovable.app",
     github: "https://github.com/cartaaipiura/ecommerce-hungry-hub.git",
     images: [
       "/projects/cartaAi-ecommerce/cartaai-ecommerce-0.webp",
@@ -114,107 +141,87 @@ const PROJECTS = [
   //   ],
   //   tags: [TAGS.JAVASCRIPT, TAGS.HTML, TAGS.CSS],
   // },
-]
----
+]---
 
 <div class="flex flex-col gap-y-4">
   {
-    PROJECTS.map(({ images, title, description, tags, link, github }, index) => (
+    PROJECTS.map(({ images, title, description, tags, link, github, store, device, status }, index) => (
       <>
         <article class="flex flex-col space-x-0 space-y-8 md:flex-row md:space-x-8 md:space-y-0 transition-all duration-100 p-4 project-card">
           <div class="w-full md:w-[45%] z-10 translate-y-36 md:translate-y-0 md:translate-x-60 transition-all duration-500 image-container">
-            <div class="relative flex flex-col items-center w-full gap-8 transition duration-500 ease-in-out transform scale-75 md:scale-100 shadow-xl overflow-clip rounded-xl sm:rounded-xl md:shadow-2xl lg:border lg:border-gray-800">
-              <div class="w-full aspect-[4/3] overflow-hidden">
-                <div class="carousel-container w-full h-full relative bg-black/10">
-                  <div class="carousel-track w-full h-full flex transition-transform duration-300 ease-in-out">
-                    {images.map((image, imgIndex) => (
-                      <div class="carousel-slide min-w-full h-full flex items-center justify-center">
-                        <img 
-                          alt={`${title} - imagen ${imgIndex + 1}`} 
-                          class="w-full h-full object-contain transition duration-500 project-image cursor-pointer hover:scale-105" 
-                          src={image} 
-                          data-index={imgIndex}
-                          data-images={JSON.stringify(images)}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <!-- Navigation buttons -->
-                  <button class="carousel-button carousel-button-prev absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-2 opacity-0 transition-opacity duration-300">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M15 18l-6-6 6-6"/>
-                    </svg>
-                  </button>
-                  <button class="carousel-button carousel-button-next absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-2 opacity-0 transition-opacity duration-300">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M9 18l6-6-6-6"/>
-                    </svg>
-                  </button>
-                  
-                  <!-- Dots indicator -->
-                  <div class="carousel-dots absolute bottom-2 left-1/2 -translate-x-1/2 flex space-x-2">
-                    {images.map((_, dotIndex) => (
-                      <button class="carousel-dot w-2 h-2 rounded-full bg-white/50 transition-colors duration-300" data-index={dotIndex}></button>
-                    ))}
-                  </div>
-                </div>
+            <div class="relative w-full transition duration-500 ease-in-out transform scale-75 md:scale-100">
+              <!-- Tarjeta con inclinación 3D y brillo que sigue al mouse -->
+              <div class="project-tilt relative w-full aspect-[4/3] rounded-xl overflow-hidden shadow-xl md:shadow-2xl ring-1 ring-white/10 bg-black/20" data-tilt>
+                <ImageCarousel images={images} title={title} device={device} />
+                <div class="project-spotlight" aria-hidden="true"></div>
               </div>
             </div>
           </div>
 
           <div class="w-full md:w-1/2 md:max-w-lg -translate-y-56 md:-translate-y-0 scale-0 md:scale-50 md:opacity-0 md:-translate-x-56 content-container transition-all duration-1000">
-    <h3 class="text-2xl font-bold text-gray-200">
-      {title}
-    </h3>
-    <div class="flex flex-wrap mt-3 m-auto grid-rows-2]">
-      <ul class="grid grid-cols-3 xs:grid-cols-4 gap-2">
-          {tags.map((tag) => (
-            <li>
-              <span
-                class={`flex justify-center items-center gap-x-2 rounded-full text-xs ${tag.class} py-1 px-2 `}
-              >
-                <tag.icon class="size-5" />
-                {tag.name}
-              </span>
-            </li>
-          ))}
-        </ul>
+            <h3 class="text-2xl font-bold text-gray-200 flex flex-wrap items-center gap-x-3 gap-y-2">
+              {title}
+              {status && (
+                <span class="wip-badge">
+                  <span class="wip-dot" aria-hidden="true"></span>
+                  {status.label}
+                </span>
+              )}
+            </h3>
+            <div class="flex flex-wrap mt-3 m-auto">
+              {tags.length > 0 && (
+                <ul class="grid grid-cols-3 xs:grid-cols-4 gap-2">
+                  {tags.map((tag) => (
+                    <li>
+                      <span
+                        class={`tag-pill flex justify-center items-center gap-x-2 rounded-full text-xs ${tag.class} py-1 px-2`}
+                        style={tag.color ? `--brand: ${tag.color}` : undefined}
+                      >
+                        <tag.icon class="size-5" />
+                        {tag.name}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
 
-      <div class="mt-4 text-gray-300">{description}</div>
-      <footer class="flex items-end justify-start mt-4 gap-x-4">
-          {github && (
-            <LinkButton href={github}>
-              <GitHub class="size-6" />
-              Code
-            </LinkButton>
-          )}
-          {link && (
-            <LinkButton href={link}>
-              <Link class="size-4" />
-              Link
-            </LinkButton>
-          )}
-        </footer>
-    </div>
-  </div>
-</article>
-        
+              <div class="mt-4 text-gray-300">{description}</div>
+
+              {status && (
+                <p class="wip-note mt-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"/><path d="M12 16h.01"/></svg>
+                  <span>{status.message}</span>
+                </p>
+              )}
+
+              <footer class="flex items-end justify-start mt-4 gap-x-4">
+                {github && (
+                  <LinkButton href={github} data-track={`Code · ${title}`}>
+                    <GitHub class="size-6" />
+                    Code
+                  </LinkButton>
+                )}
+                {link && (
+                  <LinkButton href={link} data-track={`Link · ${title}`}>
+                    <Link class="size-4" />
+                    Link
+                  </LinkButton>
+                )}
+                {store && (
+                  <LinkButton href={store} data-track={`Google Play · ${title}`}>
+                    <GooglePlay class="size-5" />
+                    Google Play
+                  </LinkButton>
+                )}
+              </footer>
+            </div>
+          </div>
+        </article>
+
         {index < PROJECTS.length - 1 && (
           <div class="relative h-8 md:h-0 my-10">
             <div class="project-arrow md:hidden absolute left-1/2 -translate-x-1/2 top-[25%] -translate-y-1/2">
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                class="icon icon-tabler icon-tabler-arrow-down" 
-                width="24" 
-                height="24" 
-                viewBox="0 0 24 24" 
-                stroke-width="2" 
-                stroke="currentColor" 
-                fill="none" 
-                stroke-linecap="round" 
-                stroke-linejoin="round"
-              >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                 <path d="M12 5l0 14" />
                 <path d="M18 13l-6 6" />
@@ -228,843 +235,204 @@ const PROJECTS = [
   }
 </div>
 
-<!-- Modal para imágenes en pantalla completa -->
-<div id="imageModal" class="fixed inset-0 z-50 hidden">
-  <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-  <button 
-    class="absolute top-4 right-4 z-50 text-white hover:text-yellow-400 transition-colors duration-300 -translate-x-48 translate-y-10"
-    onclick="closeModal()"
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M18 6L6 18M6 6l12 12"/>
-    </svg>
-  </button>
-  <div class="relative w-full h-full flex items-center justify-center">
-    <div class="carousel-container w-full h-full flex items-center justify-center">
-      <div class="carousel-track flex transition-transform duration-300 ease-in-out">
-        <!-- Las imágenes se insertarán aquí dinámicamente -->
-      </div>
-      
-      <!-- Navigation buttons -->
-      <button class="carousel-button carousel-button-prev absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-3 hover:bg-black/70 transition-colors duration-300">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M15 18l-6-6 6-6"/>
-        </svg>
-      </button>
-      <button class="carousel-button carousel-button-next absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-3 hover:bg-black/70 transition-colors duration-300">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 18l6-6-6-6"/>
-        </svg>
-      </button>
-      
-      <!-- Image counter -->
-      <div class="absolute top-4 left-1/2 -translate-x-16 bg-black/50 text-white px-4 py-2 rounded-full text-sm backdrop-blur-sm">
-        <span id="modalImageCounter">1/1</span>
-      </div>
-      
-      <!-- Dots indicator -->
-      <div class="carousel-dots absolute bottom-4 left-1/2 -translate-x-[4rem] flex space-x-2">
-        <!-- Los dots se insertarán aquí dinámicamente -->
-      </div>
-    </div>
-  </div>
-</div>
-
 <style>
   @keyframes floatingArrow {
     0%, 100% { transform: translate(-50%, -50%); }
     50% { transform: translate(-50%, calc(-50% + 10px)); }
   }
-
   @keyframes hideArrow {
-    0% { 
-      transform: translate(-50%, -50%);
-      opacity: 1;
-    }
-    50% { 
-      transform: translate(-50%, calc(-50% - 20px));
-      opacity: 0.5;
-    }
-    100% { 
-      transform: translate(-50%, calc(-50% - 30px));
-      opacity: 0;
-    }
+    0% { transform: translate(-50%, -50%); opacity: 1; }
+    50% { transform: translate(-50%, calc(-50% - 20px)); opacity: 0.5; }
+    100% { transform: translate(-50%, calc(-50% - 30px)); opacity: 0; }
   }
-
   @keyframes showArrow {
-    0% { 
-      transform: translate(-50%, calc(-50% - 30px));
-      opacity: 0;
-    }
-    50% { 
-      transform: translate(-50%, calc(-50% - 20px));
-      opacity: 0.5;
-    }
-    100% { 
-      transform: translate(-50%, -50%);
-      opacity: 1;
-    }
+    0% { transform: translate(-50%, calc(-50% - 30px)); opacity: 0; }
+    50% { transform: translate(-50%, calc(-50% - 20px)); opacity: 0.5; }
+    100% { transform: translate(-50%, -50%); opacity: 1; }
   }
-
   .project-arrow {
     animation: floatingArrow 1.5s ease-in-out infinite;
     color: rgb(250 204 21);
-    opacity: 1;
-    transition: none;
   }
+  .project-arrow.hiding { animation: hideArrow 0.8s ease-in-out forwards; }
+  .project-arrow.showing { animation: showArrow 0.8s ease-in-out forwards; }
 
-  .project-arrow.hiding {
-    animation: hideArrow 0.8s ease-in-out forwards;
+  /* ── Efecto 3D + brillo en la tarjeta ── */
+  .project-tilt {
+    --rx: 0deg;
+    --ry: 0deg;
+    --mx: 50%;
+    --my: 50%;
+    transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
+    transition: transform 0.25s ease-out, box-shadow 0.3s;
+    transform-style: preserve-3d;
   }
-
-  .project-arrow.showing {
-    animation: showArrow 0.8s ease-in-out forwards;
+  .project-tilt:hover {
+    box-shadow: 0 25px 50px -12px rgb(102 51 238 / 0.45);
   }
-
-  /* Carousel styles */
-  .carousel-container {
-    touch-action: none;
-    cursor: grab;
-    user-select: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .carousel-track {
-    will-change: transform;
-    transform: translateX(0);
-    transition: transform 0.3s ease-out;
-    display: flex;
-    align-items: center;
-  }
-
-  .carousel-slide {
-    flex-shrink: 0;
-    background: rgba(0, 0, 0, 0.1);
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .carousel-dot {
-    width: 8px;
-    height: 8px;
-    transition: all 0.3s ease;
-  }
-
-  .carousel-dot.active {
-    background-color: rgb(250 204 21);
-    transform: scale(1.2);
-  }
-
-  .project-card:hover .carousel-button {
-    opacity: 1;
-  }
-
-  .grabbing {
-    cursor: grabbing !important;
-  }
-
-  .project-image {
-    pointer-events: auto;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    object-position: center;
-    transition: transform 0.3s ease;
-  
-  }
-
-  /* Estilos para el modal */
-  #imageModal {
-    transition: opacity 0.3s ease-in-out;
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 9999;
-    transform: translateX(2rem);
-  }
-
-  #imageModal.show {
-    display: block;
-    opacity: 1;
-    
-  }
-
-  #imageModal .carousel-container {
-    max-width: 90vw;
-    max-height: 90vh;
-    overflow: hidden;
-    touch-action: none;
-    cursor: grab;
-    user-select: none;
-    position: relative;
-    padding-left: 5vw;
-    padding-right: 5vw;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  #imageModal .carousel-track {
-    display: flex;
-    transition: transform 0.3s ease-out;
-    will-change: transform;
-    height: 100%;
-    width: 100%;
-  
-  }
-
-  #imageModal .carousel-slide {
-    min-width: 100%;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.1);
-    flex-shrink: 0;
-    padding: 0;
-    
-  }
-
-  #imageModal .carousel-slide img {
-    max-width: 100%;
-    max-height: 80vh;
-    width: auto;
-    height: auto;
-    object-fit: contain;
+  .project-spotlight {
+    position: absolute;
+    inset: 0;
     pointer-events: none;
-    filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.5));
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
- 
-    
-  }
-
-  @media (max-width: 768px) {
-    #imageModal .carousel-slide img {
-      max-width: 100%;
-      max-height: 100%;
-      width: auto;
-      height: auto;
-      object-fit: contain;
-    }
-  }
-
-  #imageModal .carousel-button {
     opacity: 0;
-    transition: opacity 0.3s ease-in-out;
-    z-index: 50;
-    background: rgba(0, 0, 0, 0.5);
-    border-radius: 50%;
-    padding: 1rem;
-    display: flex;
+    transition: opacity 0.3s;
+    background: radial-gradient(400px circle at var(--mx) var(--my), rgb(250 204 21 / 0.18), transparent 45%);
+    mix-blend-mode: screen;
+    border-radius: inherit;
+  }
+  .project-tilt:hover .project-spotlight { opacity: 1; }
+  /* Borde degradado animado al pasar el mouse */
+  .project-tilt::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgb(250 204 21), rgb(102 51 238), transparent 60%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .project-tilt:hover::after { opacity: 1; }
+
+  .tag-pill {
+    transition: transform 0.2s;
+  }
+  .tag-pill:hover {
+    transform: translateY(-2px) scale(1.05);
+  }
+
+  /* ── Badges con color de marca ── */
+  .tag-brand {
+    font-weight: 600;
+    color: #f3f4f6;
+    background: color-mix(in srgb, var(--brand) 16%, rgb(17 17 27 / 0.85));
+    border: 1px solid color-mix(in srgb, var(--brand) 55%, transparent);
+    box-shadow: inset 0 0 10px color-mix(in srgb, var(--brand) 18%, transparent);
+    transition: transform 0.2s, box-shadow 0.25s, border-color 0.25s;
+  }
+  .tag-brand:hover {
+    border-color: var(--brand);
+    box-shadow: 0 0 14px color-mix(in srgb, var(--brand) 55%, transparent), inset 0 0 10px color-mix(in srgb, var(--brand) 25%, transparent);
+  }
+  :global(html.light) .tag-brand {
+    color: #111827;
+    background: color-mix(in srgb, var(--brand) 14%, #ffffff);
+    border-color: color-mix(in srgb, var(--brand) 70%, #000000 10%);
+    box-shadow: none;
+  }
+
+  /* ── Proyecto en desarrollo ── */
+  .wip-badge {
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(4px);
-    transform: translateX(-2rem);
-    
+    gap: 0.4rem;
+    padding: 0.2rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 9999px;
+    color: rgb(250 204 21);
+    background: rgb(250 204 21 / 0.12);
+    border: 1px solid rgb(250 204 21 / 0.4);
+  }
+  .wip-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: rgb(250 204 21);
+    animation: wip-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes wip-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgb(250 204 21 / 0.6); }
+    50% { box-shadow: 0 0 0 6px rgb(250 204 21 / 0); }
+  }
+  .wip-note {
+    display: flex;
+    gap: 0.6rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    border-radius: 0.75rem;
+    color: rgb(253 230 138);
+    background: repeating-linear-gradient(-45deg, rgb(250 204 21 / 0.08) 0 10px, rgb(250 204 21 / 0.03) 10px 20px);
+    border: 1px dashed rgb(250 204 21 / 0.45);
   }
 
-  #imageModal .carousel-button:hover {
-    background: rgba(0, 0, 0, 0.7);
-  }
-
-  #imageModal:hover .carousel-button {
-    opacity: 1;
-  }
-
-  #imageModal .carousel-container.grabbing {
-    cursor: grabbing;
-    
-  }
-
-  #imageModal .carousel-dot {
-    width: 8px;
-    height: 8px;
-    transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.5);
-    backdrop-filter: blur(4px);
-    transform: translateX(-20rem);
-    
-  }
-
-  #imageModal .carousel-dot.active {
-    background-color: rgb(250 204 21);
-    transform: scale(1.2);
-   
+  @media (prefers-reduced-motion: reduce) {
+    .project-tilt { transform: none !important; }
+    .wip-dot { animation: none; }
   }
 </style>
 
 <script>
-  const observerOptions = {
-    root: null,
-    rootMargin: '0px',
-    threshold: [0.6, 0.1]
-  };
+  document.addEventListener('astro:page-load', () => {
+    // ── Animación de entrada de cada proyecto (igual que antes) ──
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const article = entry.target
+        const imageContainer = article.querySelector('.image-container')
+        const contentContainer = article.querySelector('.content-container')
+        const imageWrapper = article.querySelector('.image-container > div')
+        const previousArrow = article.previousElementSibling?.querySelector('.project-arrow')
 
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      const article = entry.target;
-      const imageContainer = article.querySelector('.image-container');
-      const contentContainer = article.querySelector('.content-container');
-      const projectImage = article.querySelector('.project-image');
-      const imageWrapper = article.querySelector('.image-container > div');
-      const previousArrow = article.previousElementSibling?.querySelector('.project-arrow');
-      const carousel = article.querySelector('.carousel-container');
-
-      if (entry.intersectionRatio >= 0.6 && entry.isIntersecting) {
-        // Reset carousel to first image when project becomes visible
-        if (carousel) {
-          const track = carousel.querySelector('.carousel-track');
-          if (track) {
-            (track as HTMLElement).style.transform = 'translateX(0)';
-            carousel.querySelectorAll('.carousel-dot').forEach((dot, index) => {
-              dot.classList.toggle('active', index === 0);
-            });
+        if (entry.intersectionRatio >= 0.3 && entry.isIntersecting) {
+          if (previousArrow instanceof HTMLElement && !previousArrow.classList.contains('hiding')) {
+            previousArrow.classList.remove('showing')
+            previousArrow.classList.add('hiding')
+            setTimeout(() => { previousArrow.style.display = 'none' }, 800)
           }
-        }
-
-        if (previousArrow && previousArrow instanceof HTMLElement && !previousArrow.classList.contains('hiding')) {
-          previousArrow.classList.remove('showing');
-          previousArrow.classList.add('hiding');
-          setTimeout(() => {
-            previousArrow.style.display = 'none';
-          }, 800);
-        }
-
-        if (imageContainer) {
-          imageContainer.classList.remove('translate-y-36', 'md:translate-x-60');
+          imageContainer?.classList.remove('translate-y-36', 'md:translate-x-60')
+          contentContainer?.classList.remove('-translate-y-56', 'scale-0', 'md:scale-50', 'md:opacity-0', 'md:-translate-x-56')
+          contentContainer?.classList.add('scale-100', 'md:scale-100', 'md:opacity-100')
+          imageWrapper?.classList.remove('scale-75')
+          imageWrapper?.classList.add('scale-100')
+        } else if (!entry.isIntersecting) {
+          if (previousArrow instanceof HTMLElement) {
+            previousArrow.style.display = 'flex'
+            previousArrow.classList.remove('hiding')
+            previousArrow.classList.add('showing')
+            setTimeout(() => previousArrow.classList.remove('showing'), 800)
+          }
+          imageContainer?.classList.add('translate-y-36', 'md:translate-x-60')
+          contentContainer?.classList.add('-translate-y-56', 'scale-0', 'md:scale-50', 'md:opacity-0', 'md:-translate-x-56')
+          contentContainer?.classList.remove('scale-100', 'md:scale-100', 'md:opacity-100')
           if (window.innerWidth < 768) {
-            imageContainer.classList.add('w-full', 'md:max-w-lg');
+            imageWrapper?.classList.remove('scale-100')
+            imageWrapper?.classList.add('scale-75')
           }
         }
+      })
+    }, { threshold: [0, 0.3] })
 
-        if (contentContainer) {
-          contentContainer.classList.remove('-translate-y-56', 'scale-0', 'md:scale-50', 'md:opacity-0', 'md:-translate-x-56');
-          contentContainer.classList.add('scale-100', 'md:scale-100', 'md:opacity-100');
-        }
+    document.querySelectorAll('.project-card').forEach(article => observer.observe(article))
 
-        if (projectImage) {
-          projectImage.classList.remove('scale-150');
-          projectImage.classList.add('scale-100');
-        }
-
-        if (imageWrapper) {
-          if (window.innerWidth < 768) {
-            imageWrapper.classList.remove('scale-75');
-            imageWrapper.classList.add('scale-100');
-          } else {
-            imageWrapper.classList.add('scale-100');
-          }
-        }
-      } else if (entry.intersectionRatio <= 0.1 || !entry.isIntersecting) {
-        if (previousArrow && previousArrow instanceof HTMLElement) {
-          previousArrow.style.display = 'flex';
-          previousArrow.classList.remove('hiding');
-          previousArrow.classList.add('showing');
-          setTimeout(() => {
-            previousArrow.classList.remove('showing');
-          }, 800);
-        }
-
-        if (imageContainer) {
-          imageContainer.classList.add('translate-y-36', 'md:translate-x-60');
-          if (window.innerWidth < 768) {
-            imageContainer.classList.remove('w-full', 'md:max-w-lg');
-          }
-        }
-
-        if (contentContainer) {
-          contentContainer.classList.add('-translate-y-56', 'scale-0', 'md:scale-50', 'md:opacity-0', 'md:-translate-x-56');
-          contentContainer.classList.remove('scale-100', 'md:scale-100', 'md:opacity-100');
-        }
-
-        if (projectImage) {
-          projectImage.classList.remove('scale-100');
-          projectImage.classList.add('scale-150');
-        }
-
-        if (imageWrapper) {
-          if (window.innerWidth < 768) {
-            imageWrapper.classList.remove('scale-100');
-            imageWrapper.classList.add('scale-75');
-          } else {
-            imageWrapper.classList.remove('scale-100');
-          }
-        }
-      }
-    });
-  }, observerOptions);
-
-  document.querySelectorAll('.project-card').forEach(article => {
-    observer.observe(article);
-  });
-
-  window.addEventListener('load', () => {
-    document.querySelectorAll('.project-card').forEach(article => {
-      const rect = article.getBoundingClientRect();
-      const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
-      const previousArrow = article.previousElementSibling?.querySelector('.project-arrow');
-      
-      if (previousArrow && previousArrow instanceof HTMLElement) {
-        if (isVisible) {
-          previousArrow.classList.remove('showing');
-          previousArrow.classList.add('hiding');
-          setTimeout(() => {
-            previousArrow.style.display = 'none';
-          }, 800);
-        } else {
-          previousArrow.style.display = 'flex';
-          previousArrow.classList.remove('hiding');
-          previousArrow.classList.add('showing');
-          setTimeout(() => {
-            previousArrow.classList.remove('showing');
-          }, 800);
-        }
-      }
-    });
-  });
-
-  // Carousel functionality
-  document.querySelectorAll('.carousel-container').forEach(carousel => {
-    let track = carousel.querySelector('.carousel-track');
-    if (!track) return;
-
-    let isDragging = false;
-    let startPos = 0;
-    let currentTranslate = 0;
-    let currentIndex = 0;
-    let prevTranslate = 0;
-    let animationID = 0;
-    let autoPlayInterval: number | null = null;
-    let isAutoPlayPaused = false;
-    let isProjectVisible = false;
-
-    const slides = carousel.querySelectorAll('.carousel-slide');
-    const dots = carousel.querySelectorAll('.carousel-dot');
-    const prevButton = carousel.querySelector('.carousel-button-prev');
-    const nextButton = carousel.querySelector('.carousel-button-next');
-    const projectCard = carousel.closest('.project-card');
-
-    // Prevent image dragging
-    carousel.querySelectorAll('img').forEach(img => {
-      img.addEventListener('dragstart', (e) => e.preventDefault());
-    });
-
-    function setPositionByIndex() {
-      currentTranslate = currentIndex * -100;
-      prevTranslate = currentTranslate;
-      setSliderPosition();
+    // ── Inclinación 3D + brillo que sigue al mouse (solo desktop) ──
+    const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (canHover && !reduceMotion) {
+      document.querySelectorAll<HTMLElement>('[data-tilt]').forEach((card) => {
+        card.addEventListener('pointermove', (e) => {
+          if (card.querySelector('.carousel.is-dragging')) return
+          const r = card.getBoundingClientRect()
+          const x = (e.clientX - r.left) / r.width
+          const y = (e.clientY - r.top) / r.height
+          card.style.setProperty('--ry', `${(x - 0.5) * 10}deg`)
+          card.style.setProperty('--rx', `${(0.5 - y) * 10}deg`)
+          card.style.setProperty('--mx', `${x * 100}%`)
+          card.style.setProperty('--my', `${y * 100}%`)
+        })
+        card.addEventListener('pointerleave', () => {
+          card.style.setProperty('--rx', '0deg')
+          card.style.setProperty('--ry', '0deg')
+        })
+      })
     }
 
-    function setSliderPosition() {
-      if (!track) return;
-      (track as HTMLElement).style.transform = `translateX(${currentTranslate}%)`;
-      
-      // Update dots
-      dots.forEach((dot, index) => {
-        dot.classList.toggle('active', index === currentIndex);
-      });
-    }
-
-    function nextSlide() {
-      if (!isProjectVisible) return;
-      currentIndex = (currentIndex + 1) % slides.length;
-      setPositionByIndex();
-    }
-
-    function startAutoPlay() {
-      if (autoPlayInterval || !isProjectVisible) return;
-      autoPlayInterval = window.setInterval(nextSlide, 3000);
-    }
-
-    function stopAutoPlay() {
-      if (autoPlayInterval) {
-        clearInterval(autoPlayInterval);
-        autoPlayInterval = null;
-      }
-    }
-
-    function pauseAutoPlayTemporarily() {
-      if (isAutoPlayPaused || !isProjectVisible) return;
-      isAutoPlayPaused = true;
-      stopAutoPlay();
-      setTimeout(() => {
-        isAutoPlayPaused = false;
-        startAutoPlay();
-      }, 5000);
-    }
-
-    function getPositionX(event: Event) {
-      return event.type.includes('mouse') ? (event as MouseEvent).pageX : (event as TouchEvent).touches[0].clientX;
-    }
-
-    function touchStart(event: Event) {
-      startPos = getPositionX(event);
-      isDragging = true;
-      animationID = requestAnimationFrame(animation);
-      if (track) track.classList.add('grabbing');
-      stopAutoPlay();
-    }
-
-    function touchMove(event: Event) {
-      if (isDragging) {
-        const currentPosition = getPositionX(event);
-        const diff = (currentPosition - startPos) * 100 / (carousel as HTMLElement).offsetWidth;
-        currentTranslate = prevTranslate + diff;
-      }
-    }
-
-    function touchEnd() {
-      isDragging = false;
-      cancelAnimationFrame(animationID);
-      if (track) track.classList.remove('grabbing');
-
-      const movedBy = currentTranslate - prevTranslate;
-      
-      // Minimum distance for swipe
-      if (Math.abs(movedBy) > 20) {
-        if (movedBy < 0) {
-          currentIndex = (currentIndex + 1) % slides.length;
-        } else {
-          currentIndex = (currentIndex - 1 + slides.length) % slides.length;
-        }
-      }
-
-      setPositionByIndex();
-      pauseAutoPlayTemporarily();
-    }
-
-    function animation() {
-      if (isDragging) {
-        // Efecto circular
-        if (currentTranslate > 0) {
-          currentTranslate = -((slides.length - 1) * 100);
-        } else if (currentTranslate < -((slides.length - 1) * 100)) {
-          currentTranslate = 0;
-        }
-        setSliderPosition();
-        requestAnimationFrame(animation);
-      }
-    }
-
-    // Event listeners
-    if (track) {
-      (track as HTMLElement).addEventListener('mousedown', touchStart);
-      (track as HTMLElement).addEventListener('touchstart', touchStart);
-      (track as HTMLElement).addEventListener('mousemove', touchMove);
-      (track as HTMLElement).addEventListener('touchmove', touchMove);
-      (track as HTMLElement).addEventListener('mouseup', touchEnd);
-      (track as HTMLElement).addEventListener('touchend', touchEnd);
-      (track as HTMLElement).addEventListener('mouseleave', touchEnd);
-    }
-
-    // Navigation buttons
-    if (prevButton) {
-      prevButton.addEventListener('click', () => {
-        if (currentIndex === 0) {
-          currentIndex = slides.length - 1;
-        } else {
-          currentIndex -= 1;
-        }
-        setPositionByIndex();
-        pauseAutoPlayTemporarily();
-      });
-    }
-
-    if (nextButton) {
-      nextButton.addEventListener('click', () => {
-        if (currentIndex === slides.length - 1) {
-          currentIndex = 0;
-        } else {
-          currentIndex += 1;
-        }
-        setPositionByIndex();
-        pauseAutoPlayTemporarily();
-      });
-    }
-
-    // Dot navigation
-    dots.forEach((dot, index) => {
-      dot.addEventListener('click', () => {
-        currentIndex = index;
-        setPositionByIndex();
-        pauseAutoPlayTemporarily();
-      });
-    });
-
-    // Initialize position
-    setPositionByIndex();
-
-    // Reset carousel position when project becomes visible
-    if (projectCard) {
-      const projectObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          isProjectVisible = entry.isIntersecting && entry.intersectionRatio >= 0.6;
-          if (isProjectVisible) {
-            currentIndex = 0;
-            setPositionByIndex();
-            startAutoPlay();
-          } else {
-            stopAutoPlay();
-          }
-        });
-      }, { threshold: [0.6] });
-
-      projectObserver.observe(projectCard);
-    }
-
-    // Cleanup on component unmount
-    return () => {
-      stopAutoPlay();
-    };
-  });
-
-  // Funcionalidad del modal
-  let modalImages: string[] = [];
-  let currentModalIndex = 0;
-  let isDragging = false;
-  let startPos = 0;
-  let currentTranslate = 0;
-  let prevTranslate = 0;
-  let animationID = 0;
-
-  // Declarar las funciones globales
-  declare global {
-    interface Window {
-      openModal: (image: string, index: number, images: string[]) => void;
-      closeModal: () => void;
-    }
-  }
-
-  function getPositionX(event: Event) {
-    return event.type.includes('mouse') ? (event as MouseEvent).pageX : (event as TouchEvent).touches[0].clientX;
-  }
-
-  function touchStart(event: Event) {
-    startPos = getPositionX(event);
-    isDragging = true;
-    animationID = requestAnimationFrame(animation);
-    const container = document.querySelector('#imageModal .carousel-container');
-    if (container) {
-      container.classList.add('grabbing');
-    }
-  }
-
-  function touchMove(event: Event) {
-    if (isDragging) {
-      const currentPosition = getPositionX(event);
-      const diff = (currentPosition - startPos) * 100 / window.innerWidth;
-      currentTranslate = prevTranslate + diff;
-      setModalPosition();
-    }
-  }
-
-  function touchEnd() {
-    isDragging = false;
-    cancelAnimationFrame(animationID);
-    const container = document.querySelector('#imageModal .carousel-container');
-    if (container) {
-      container.classList.remove('grabbing');
-    }
-
-    const movedBy = currentTranslate - prevTranslate;
-    
-    // Ajustar la sensibilidad del swipe
-    if (Math.abs(movedBy) > 10) {
-      if (movedBy < 0) {
-        currentModalIndex = (currentModalIndex + 1) % modalImages.length;
-      } else {
-        currentModalIndex = (currentModalIndex - 1 + modalImages.length) % modalImages.length;
-      }
-    }
-
-    currentTranslate = -currentModalIndex * 100;
-    prevTranslate = currentTranslate;
-    setModalPosition();
-    updateModalDots();
-  }
-
-  function animation() {
-    if (isDragging) {
-      setModalPosition();
-      requestAnimationFrame(animation);
-    }
-  }
-
-  function setModalPosition() {
-    const track = document.querySelector('#imageModal .carousel-track');
-    if (track) {
-      (track as HTMLElement).style.transform = `translateX(${currentTranslate}%)`;
-    }
-  }
-
-  function updateModalDots() {
-    const dots = document.querySelectorAll('#imageModal .carousel-dot');
-    dots.forEach((dot, index) => {
-      dot.classList.toggle('active', index === currentModalIndex);
-    });
-    updateModalCounter();
-  }
-
-  function updateModalCounter() {
-    const counter = document.getElementById('modalImageCounter');
-    if (counter) {
-      counter.textContent = `${currentModalIndex + 1}/${modalImages.length}`;
-    }
-  }
-
-  // Hacer la función openModal global
-  window.openModal = function(image: string, index: number, images: string[]) {
-    modalImages = images;
-    currentModalIndex = index;
-    
-    const modal = document.getElementById('imageModal');
-    const track = modal?.querySelector('.carousel-track');
-    const container = modal?.querySelector('.carousel-container');
-    const dotsContainer = modal?.querySelector('.carousel-dots');
-    
-    if (modal && track && container && dotsContainer) {
-      // Limpiar el track y los dots
-      track.innerHTML = '';
-      dotsContainer.innerHTML = '';
-      
-      // Añadir las imágenes
-      images.forEach((img, imgIndex) => {
-        const slide = document.createElement('div');
-        slide.className = 'carousel-slide';
-        slide.style.width = '100%';
-        slide.style.flexShrink = '0';
-        const imgElement = document.createElement('img');
-        imgElement.src = img;
-        imgElement.alt = `Project image ${imgIndex + 1}`;
-        imgElement.style.width = 'auto';
-        imgElement.style.height = 'auto';
-        imgElement.style.maxWidth = '100%';
-        imgElement.style.maxHeight = '100%';
-        imgElement.style.objectFit = 'contain';
-        slide.appendChild(imgElement);
-        track.appendChild(slide);
-      });
-
-      // Añadir los dots
-      images.forEach((_, dotIndex) => {
-        const dot = document.createElement('button');
-        dot.className = 'carousel-dot w-2 h-2 rounded-full bg-white/50 transition-colors duration-300';
-        dot.dataset.index = dotIndex.toString();
-        dot.addEventListener('click', () => {
-          currentModalIndex = dotIndex;
-          currentTranslate = -dotIndex * 100;
-          prevTranslate = currentTranslate;
-          setModalPosition();
-          updateModalDots();
-        });
-        dotsContainer.appendChild(dot);
-      });
-      
-      // Posicionar en la imagen seleccionada
-      currentTranslate = -index * 100;
-      prevTranslate = currentTranslate;
-      setModalPosition();
-      updateModalDots();
-      
-      // Mostrar el modal
-      modal.classList.add('show');
-      document.body.style.overflow = 'hidden';
-    }
-  }
-
-  // Hacer la función closeModal global
-  window.closeModal = function() {
-    const modal = document.getElementById('imageModal');
-    const container = modal?.querySelector('.carousel-container');
-    if (modal && container) {
-      modal.classList.remove('show');
-      document.body.style.overflow = '';
-      container.classList.remove('grabbing');
-    }
-  }
-
-  // Event listeners para el modal
-  document.addEventListener('DOMContentLoaded', () => {
-    // Añadir event listeners a todas las imágenes del proyecto
-    document.querySelectorAll('.project-image').forEach(img => {
-      img.addEventListener('click', (e) => {
-        const target = e.currentTarget as HTMLImageElement;
-        const index = parseInt(target.dataset.index || '0');
-        const images = JSON.parse(target.dataset.images || '[]');
-        window.openModal(target.src, index, images);
-      });
-    });
-
-    const modal = document.getElementById('imageModal');
-    const container = modal?.querySelector('.carousel-container');
-    const prevButton = modal?.querySelector('.carousel-button-prev');
-    const nextButton = modal?.querySelector('.carousel-button-next');
-
-    if (container) {
-      container.addEventListener('mousedown', touchStart);
-      container.addEventListener('touchstart', touchStart);
-      container.addEventListener('mousemove', touchMove);
-      container.addEventListener('touchmove', touchMove);
-      container.addEventListener('mouseup', touchEnd);
-      container.addEventListener('touchend', touchEnd);
-      container.addEventListener('mouseleave', touchEnd);
-    }
-
-    if (prevButton) {
-      prevButton.addEventListener('click', () => {
-        currentModalIndex = (currentModalIndex - 1 + modalImages.length) % modalImages.length;
-        currentTranslate = -currentModalIndex * 100;
-        prevTranslate = currentTranslate;
-        setModalPosition();
-        updateModalDots();
-      });
-    }
-
-    if (nextButton) {
-      nextButton.addEventListener('click', () => {
-        currentModalIndex = (currentModalIndex + 1) % modalImages.length;
-        currentTranslate = -currentModalIndex * 100;
-        prevTranslate = currentTranslate;
-        setModalPosition();
-        updateModalDots();
-      });
-    }
-
-    // Cerrar modal al hacer clic fuera de la imagen
-    modal?.addEventListener('click', (e) => {
-      const target = e.target as HTMLElement;
-      const carouselContainer = modal.querySelector('.carousel-container');
-      if (target === modal || (carouselContainer && !carouselContainer.contains(target))) {
-        window.closeModal();
-      }
-    });
-  });
-
-  // Cerrar modal con la tecla Escape
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      window.closeModal();
-    }
-  });
+    // Limpieza al cambiar de página (View Transitions)
+    document.addEventListener('astro:before-swap', () => {
+      observer.disconnect()
+    }, { once: true })
+  })
 </script>
-
-<style>
-  .scale-175 {
-    transform: scale(1.75);
-  }
-  
-  .grabbing {
-    cursor: grabbing;
-  }
-</style>
