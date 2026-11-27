@@ -15,7 +15,7 @@ const SECURITY_HEADERS = {
   'x-frame-options': 'DENY',
   'x-content-type-options': 'nosniff',
   'content-security-policy':
-    "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; form-action 'none'; frame-ancestors 'none'; base-uri 'none'",
+    "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self' https://main.realtime.ably.net; img-src 'self' data:; form-action 'none'; frame-ancestors 'none'; base-uri 'none'",
 }
 
 const notFound = `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Página no encontrada</title>

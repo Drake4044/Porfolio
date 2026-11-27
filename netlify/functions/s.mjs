@@ -7,12 +7,18 @@
 //   POST /api/s/ajustes  prender / apagar Telegram y mail
 //   POST /api/s/prueba   manda un aviso de prueba
 //   POST /api/s/salir    cierra la sesión
+//   GET  /api/s/vivo     token para escuchar visitas y mensajes en vivo (Ably)
+//   POST /api/s/borrar   borra visitas { ids: [...] }
+//   GET  /api/s/mensajes            mensajes del formulario de contacto
+//   POST /api/s/mensajes/leido      { ids, leido }
+//   POST /api/s/mensajes/borrar     { ids }
 //
 // Variables de entorno: ADMIN_USER, ADMIN_PASSWORD, PANEL_PATH
 // (+ TELEGRAM_* y/o RESEND_API_KEY + NOTIFY_EMAIL para mandar el código).
 // ─────────────────────────────────────────────────────────────
 import { randomInt } from 'node:crypto'
-import { visitas, ajustes, updateJSON, getConfig } from './_shared/store.mjs'
+import { visitas, ajustes, mensajes, updateJSON, getConfig } from './_shared/store.mjs'
+import { subscribeToken, panelChannel, ablyReady } from './_shared/ably.mjs'
 import { sendTelegram, sendEmail, telegramReady, emailReady } from './_shared/notify.mjs'
 import { env, json, safeEqual, sha256, hmac, ipTag, randomId, fechaAR } from './_shared/util.mjs'
 
@@ -164,6 +170,38 @@ function groupBy(list, fn) {
   return m
 }
 
+/** Borra visitas por id, estén sueltas (v/...) o dentro de un paquete mensual (m/...). */
+async function deleteVisits(ids) {
+  const wanted = new Set(ids.filter((id) => /^[a-z0-9]{12}$/.test(String(id))))
+  if (!wanted.size) return 0
+  const store = visitas()
+  let deleted = 0
+  for (const b of (await store.list({ prefix: 'v/' })).blobs) {
+    if (wanted.has(b.key.slice(-12))) {
+      await store.delete(b.key)
+      deleted++
+    }
+  }
+  for (const b of (await store.list({ prefix: 'm/' })).blobs) {
+    await updateJSON(store, b.key, (bundle) => {
+      const kept = (bundle ?? []).filter((v) => !wanted.has(v.id))
+      if (kept.length === (bundle ?? []).length) return undefined // nada que cambiar
+      deleted += (bundle ?? []).length - kept.length
+      return kept
+    }, { create: false })
+  }
+  return deleted
+}
+
+async function loadMessages() {
+  const store = mensajes()
+  const { blobs } = await store.list({ prefix: 'c/' })
+  const list = (await mapLimit(blobs, 16, (b) => store.get(b.key, { type: 'json' }))).filter(Boolean)
+  return list.sort((a, b) => Date.parse(b.fecha) - Date.parse(a.fecha))
+}
+
+const validIds = (ids) => (Array.isArray(ids) ? ids.map(String).filter((id) => /^[a-z0-9]{12}$/.test(id)).slice(0, 1000) : [])
+
 // ── Router ─────────────────────────────────────────────────
 export default async (req, context) => {
   if (!configured()) return json({ error: 'El panel todavía no está configurado en Netlify.' }, 503)
@@ -199,6 +237,28 @@ export default async (req, context) => {
         config.email ? sendEmail('🧪 Aviso de prueba del portfolio', text) : false,
       ])
       return json({ telegram, email })
+    }
+    if (req.method === 'GET' && action === 'vivo') {
+      if (!ablyReady()) return json({ live: null, error: 'Falta ABLY_API_KEY en Netlify.' })
+      return json({ live: await subscribeToken(panelChannel(), 120) })
+    }
+    if (req.method === 'POST' && action === 'borrar') {
+      const { ids } = await req.json().catch(() => ({}))
+      return json({ borradas: await deleteVisits(validIds(ids)) })
+    }
+    if (req.method === 'GET' && action === 'mensajes') return json({ mensajes: await loadMessages() })
+    if (req.method === 'POST' && (action === 'mensajes/leido' || action === 'mensajes/borrar')) {
+      const body = await req.json().catch(() => ({}))
+      const ids = new Set(validIds(body.ids))
+      const store = mensajes()
+      let n = 0
+      for (const b of (await store.list({ prefix: 'c/' })).blobs) {
+        if (!ids.has(b.key.slice(-12))) continue
+        if (action === 'mensajes/borrar') await store.delete(b.key)
+        else await updateJSON(store, b.key, (m) => (m ? { ...m, leido: body.leido !== false } : undefined), { create: false })
+        n++
+      }
+      return json({ ok: true, n })
     }
     if (req.method === 'POST' && action === 'salir') return json({ ok: true }, 200, { 'set-cookie': clearCookie })
     return json({ error: 'No encontrado.' }, 404)

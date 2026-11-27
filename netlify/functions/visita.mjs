@@ -7,8 +7,10 @@
 // ─────────────────────────────────────────────────────────────
 import { visitas, ajustes, updateJSON, getConfig } from './_shared/store.mjs'
 import { sendTelegram, sendEmail } from './_shared/notify.mjs'
+import { publish, panelChannel } from './_shared/ably.mjs'
 import {
   json, clean, cleanList, randomId, BOT_PATTERN, describeDevice, describeReferrer, flagEmoji, fechaAR,
+  isDatacenterCity, cleanRef,
 } from './_shared/util.mjs'
 
 const KEY_RE = /^v\/\d{13}-[a-z0-9]{12}$/
@@ -42,8 +44,9 @@ function buildMessage(v) {
     `${flagEmoji(v.paisCodigo)} ${lugar} (aproximado)`,
     `${v.dispositivo === 'Compu' ? '💻' : '📱'} ${v.dispositivo} · ${v.so} · ${v.navegador}`,
     `🔗 ${v.origen === 'Directo' ? 'Entró directo (link copiado, favorito o app)' : `Vino de ${v.origen}`}`,
-    `📄 Página: ${v.pagina}`,
   ]
+  if (v.ref) lines.push(`🏷️ Link: ${v.ref}`)
+  if (v.posibleRobot) lines.push('🤖 Posible robot: viene de un centro de datos')
   if (v.idioma) lines.push(`🗣️ Idioma: ${v.idioma}`)
   return lines.join('\n')
 }
@@ -79,6 +82,8 @@ async function startVisit(req, context) {
     ...describeDevice(ua),
     ...describeReferrer(clean(data.referrer, 400), ownHost),
     pagina: clean(data.path, 80) || '/',
+    ref: cleanRef(data.ref),
+    posibleRobot: isDatacenterCity(geo.city),
     idioma: clean(data.lang, 20),
     pantalla: clean(data.screen, 20),
     secciones: [],
@@ -88,13 +93,17 @@ async function startVisit(req, context) {
   }
 
   await visitas().setJSON(key, visit, { onlyIfNew: true })
+  // En vivo: le avisa al panel si lo tenés abierto
+  const live = publish(panelChannel(), 'visita', { tipo: 'nueva', visita: visit })
 
   // Avisos según los interruptores del panel
   const config = await getConfig()
   if ((config.telegram || config.email) && (await underNotifyLimit())) {
     const text = buildMessage(visit)
     const subject = `👀 Nueva visita: ${visit.ciudad || visit.pais || 'ubicación desconocida'} · ${visit.dispositivo}`
-    await Promise.all([config.telegram && sendTelegram(text), config.email && sendEmail(subject, text)])
+    await Promise.all([config.telegram && sendTelegram(text), config.email && sendEmail(subject, text), live])
+  } else {
+    await live
   }
 
   return json({ key })
@@ -112,7 +121,7 @@ async function updateVisit(req) {
   if (Date.now() - Number(key.slice(2, 15)) > MAX_UPDATE_AGE) return new Response(null, { status: 410 })
 
   const duracion = Math.max(0, Math.min(6 * 3600, Math.round(Number(data.duracion) || 0)))
-  await updateJSON(
+  const updated = await updateJSON(
     visitas(),
     key,
     (v) => {
@@ -130,6 +139,7 @@ async function updateVisit(req) {
     },
     { create: false }
   ).catch((err) => console.error(err))
+  if (updated) await publish(panelChannel(), 'visita', { tipo: 'actualizacion', visita: updated })
   return new Response(null, { status: 204 })
 }
 

@@ -2,6 +2,7 @@
 import "@fontsource-variable/onest"
 import Header from '../components/Header.astro';
 import Lightbox from "../components/Lightbox.astro";
+import ContactModal from "../components/ContactModal.astro";
 import Footer from "../components/Footer.astro";
 import { ViewTransitions } from "astro:transitions"
 
@@ -79,6 +80,8 @@ const { title } = Astro.props;
 		<Footer/>
 		<!-- Visor a pantalla completa: proyectos y fotos con data-zoomable -->
 		<Lightbox />
+		<!-- Botón flotante "Contactame" con el formulario -->
+		<ContactModal />
 	</body>
 </html>
 <script>
@@ -124,7 +127,6 @@ const { title } = Astro.props;
 	/* ── Fondo de la página según el tema ── */
 	.page-bg {
 		background: radial-gradient(125% 125% at 50% 30%, #000 40%, #63e 100%);
-		transition: background 0.5s ease;
 	}
 	html.light .page-bg {
 		background: radial-gradient(125% 125% at 50% 30%, #fafaf9 40%, #c4b5fd 100%);
@@ -174,11 +176,29 @@ const { title } = Astro.props;
 	html.light .section-arrow,
 	html.light .project-arrow { color: #b45309; }
 
-	/* Transición suave de colores al cambiar de tema */
-	html.theme-transition,
-	html.theme-transition * {
-		transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease !important;
+	/* ── Cambio de tema con un círculo que crece desde el centro ── */
+	/* Mientras dura, todo cambia de color de una sola vez (sin transiciones de texto) */
+	html.theme-switching *,
+	html.theme-switching *::before,
+	html.theme-switching *::after {
+		transition: none !important;
 	}
+	/* El contenido no hace su propia animación de View Transitions durante el cambio */
+	html.theme-switching [data-astro-transition-scope] {
+		view-transition-name: none !important;
+	}
+	html.theme-switching::view-transition-old(root),
+	html.theme-switching::view-transition-new(root) {
+		animation: none;
+		mix-blend-mode: normal;
+	}
+	html.theme-switching::view-transition-new(root) {
+		z-index: 9999;
+	}
+
+	/* LinkedIn negro en modo claro */
+	html.light .linkedin-icon { fill: #111827; }
+	html.light .group:hover .linkedin-icon { fill: #b45309; }
 
 	html {
 		font-family: "Onest Variable", system-ui, sans-serif;

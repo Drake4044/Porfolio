@@ -22,7 +22,7 @@ export async function sendTelegram(text) {
 
 const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])
 
-export async function sendEmail(subject, text) {
+export async function sendEmail(subject, text, replyTo) {
   if (!emailReady()) return false
   const html = `<div style="font-family:system-ui,sans-serif;font-size:15px;line-height:1.6;color:#111">${text
     .split('\n')
@@ -38,6 +38,7 @@ export async function sendEmail(subject, text) {
         to: [env('NOTIFY_EMAIL')],
         subject,
         text,
+        ...(replyTo ? { reply_to: replyTo } : {}),
         html,
       }),
     })
