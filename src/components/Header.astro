@@ -134,11 +134,31 @@ const contactItem = {
       btn.addEventListener("click", () => {
         const root = document.documentElement
         const toLight = !root.classList.contains("light")
-        root.classList.add("theme-transition")
-        root.classList.toggle("light", toLight)
-        root.classList.toggle("dark", !toLight)
-        try { localStorage.setItem("theme", toLight ? "light" : "dark") } catch (e) {}
-        window.setTimeout(() => root.classList.remove("theme-transition"), 500)
+        const applyTheme = () => {
+          root.classList.toggle("light", toLight)
+          root.classList.toggle("dark", !toLight)
+          try { localStorage.setItem("theme", toLight ? "light" : "dark") } catch (e) {}
+        }
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        const doc = document as Document & { startViewTransition?: (cb: () => void) => { ready: Promise<void>; finished: Promise<void> } }
+        // Navegadores sin View Transitions (o con "reducir movimiento"): cambio instantáneo
+        if (!doc.startViewTransition || reduceMotion) {
+          applyTheme()
+          return
+        }
+        // Un círculo del color nuevo nace en el centro de la pantalla y crece hasta cubrirla
+        root.classList.add("theme-switching")
+        const transition = doc.startViewTransition(applyTheme)
+        transition.ready
+          .then(() => {
+            const radius = Math.hypot(window.innerWidth / 2, window.innerHeight / 2)
+            root.animate(
+              { clipPath: ["circle(0px at 50% 50%)", `circle(${radius}px at 50% 50%)`] },
+              { duration: 700, easing: "cubic-bezier(0.65, 0, 0.35, 1)", pseudoElement: "::view-transition-new(root)" }
+            )
+          })
+          .catch(() => {})
+        transition.finished.finally(() => root.classList.remove("theme-switching"))
       })
     })
 
@@ -227,10 +247,9 @@ const contactItem = {
       e.stopPropagation()
     })
 
-    // ── Scroll rápido hacia cada sección ──
-    // Antes: 800 ms con easeInOutCubic (arranca lento, por eso se sentía "pesado").
-    // Ahora: duración según la distancia (entre 250 y 550 ms) con easeOutQuart,
-    // que arranca a toda velocidad y frena suave al llegar.
+    // ── Deslizamiento hacia cada sección ──
+    // Arranca suave, acelera y frena suave en la sección elegida.
+    // Cada cuadro usa behavior: 'instant' para no pelear con el scroll-behavior: smooth global.
     let scrollFrame: number | null = null
     let navLock = false // mientras dura el scroll, el link activo no "salta" entre secciones
 
@@ -262,15 +281,17 @@ const contactItem = {
         onDone?.()
         return
       }
-      const duration = Math.min(550, Math.max(250, Math.abs(distance) * 0.12))
-      const easeOutQuart = (t: number) => 1 - Math.pow(1 - t, 4)
+      // Arranca suave, acelera en el medio y frena suave al llegar (easeInOutCubic).
+      // La duración crece con la distancia: entre 0,5 y 0,9 segundos.
+      const duration = Math.min(900, Math.max(500, Math.abs(distance) * 0.25))
+      const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2)
       let startTime: number | null = null
       navLock = true
 
       const step = (now: number) => {
         if (startTime === null) startTime = now
         const progress = Math.min((now - startTime) / duration, 1)
-        window.scrollTo({ top: startPosition + distance * easeOutQuart(progress), behavior: 'instant' })
+        window.scrollTo({ top: startPosition + distance * easeInOutCubic(progress), behavior: 'instant' })
         if (progress < 1) {
           scrollFrame = requestAnimationFrame(step)
         } else {
@@ -279,6 +300,8 @@ const contactItem = {
           // Corrección final por si alguna animación cambió la altura durante el viaje
           const finalTop = getTargetTop(target)
           if (Math.abs(finalTop - window.scrollY) > 4) window.scrollTo({ top: finalTop, behavior: 'instant' })
+          lastActive = ''
+          updateActiveLinks()
           onDone?.()
         }
       }
@@ -319,114 +342,48 @@ const contactItem = {
       })
     })
 
-    // Observer mejorado para las secciones
-    const callback = (entries: IntersectionObserverEntry[]) => {
-      if (navLock) return
-      entries.forEach((entry) => {
-        const targetId = entry.target.id
-        const correspondingLinks = document.querySelectorAll(`a[aria-label="${targetId}"]`)
+    // ── Sección activa del menú ──
+    // Un solo cálculo, en cada cuadro de scroll: la sección activa es la última
+    // (de las que están en el menú) cuyo comienzo ya pasó la línea del 40% de la
+    // pantalla. Arriba de todo siempre es "Inicio" y al llegar al final, la última.
+    const navIds = Array.from(document.querySelectorAll('header nav a[aria-label]'))
+      .map((a) => a.getAttribute('aria-label') ?? '')
+      .filter((id, i, arr) => id && arr.indexOf(id) === i && document.getElementById(id))
 
-        correspondingLinks.forEach(link => {
-        if (entry.isIntersecting) {
-            // Añadir clases de manera más específica
-            if (!link.classList.contains('text-yellow-400')) {
-              link.classList.add('text-yellow-400')
-              link.classList.add('text-shadow')
-            }
-            
-            // Remover clases de los otros enlaces
-            document.querySelectorAll('header nav a').forEach(otherLink => {
-              if (otherLink !== link && otherLink.classList.contains('text-yellow-400')) {
-                otherLink.classList.remove('text-yellow-400', 'text-shadow')
-              }
-            })
-          } else if (!checkIfAnySectionIsVisible()) {
-            // Si ninguna sección está visible, remover las clases
-            link.classList.remove('text-yellow-400', 'text-shadow')
-          }
-        })
-      })
+    const currentSection = () => {
+      if (window.scrollY < 80) return 'top'
+      const nearBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4
+      if (nearBottom) return navIds[navIds.length - 1]
+      const line = window.innerHeight * 0.4
+      let active = navIds[0]
+      for (const id of navIds) {
+        const el = document.getElementById(id)
+        if (el && el.getBoundingClientRect().top <= line) active = id
+      }
+      return active
     }
 
-    // Función auxiliar mejorada para verificar si alguna sección está visible
-    const checkIfAnySectionIsVisible = () => {
-      const sections = document.querySelectorAll('section')
-      return Array.from(sections).some(section => {
-        const rect = section.getBoundingClientRect()
-        const windowHeight = window.innerHeight
-        const threshold = 0.3 // 30% de la altura de la ventana
-
-        // Verificar si la sección está visible en el viewport
-        return (
-          rect.top <= windowHeight * threshold &&
-          rect.bottom >= windowHeight * (1 - threshold)
-        )
-      })
-    }
-
-    // Configuración mejorada del observer
-    const observerOptions = {
-      root: null,
-      rootMargin: "-30% 0px -30% 0px", // Ajustado para ser más preciso
-      threshold: [0.2, 0.5, 0.8] // Múltiples umbrales para mejor detección
-    }
-
-    const observer = new IntersectionObserver(callback, observerOptions)
-
-    // Observar todas las secciones
-    document.querySelectorAll('section').forEach((section) => {
-      observer.observe(section)
-    })
-
-    // Función mejorada para actualizar enlaces activos al hacer scroll
+    let lastActive = ''
     const updateActiveLinks = () => {
       if (navLock) return
-      const scrollPosition = window.scrollY + window.innerHeight * 0.5
-      const sections = document.querySelectorAll('section')
-      let activeSection: string | null = null
-
-      sections.forEach(section => {
-        const sectionTop = section.offsetTop
-        const sectionHeight = section.offsetHeight
-        const sectionId = section.id
-
-        if (scrollPosition >= sectionTop && scrollPosition <= sectionTop + sectionHeight) {
-          activeSection = sectionId
-        }
-      })
-
-      // Actualizar los enlaces basado en la sección activa
-      document.querySelectorAll('header nav a').forEach(link => {
-        const linkLabel = link.getAttribute('aria-label')
-        if (linkLabel === activeSection) {
-          link.classList.add('text-yellow-400', 'text-shadow')
-      } else {
-          link.classList.remove('text-yellow-400', 'text-shadow')
-        }
-      })
-
-      // Caso especial para el enlace de inicio
-      const homeLink = document.querySelector('a[aria-label="top"]')
-      if (homeLink) {
-        if (window.scrollY < 100) { // Si estamos muy cerca del inicio
-          homeLink.classList.add('text-yellow-400', 'text-shadow')
-        } else if (activeSection) {
-          homeLink.classList.remove('text-yellow-400', 'text-shadow')
-        }
-      }
+      const active = currentSection()
+      if (active === lastActive) return
+      lastActive = active
+      setActiveLink(active)
     }
 
-    // Añadir evento de scroll con throttling
-    let isScrolling = false
-    window.addEventListener('scroll', () => {
-      if (!isScrolling) {
-        window.requestAnimationFrame(() => {
-          updateActiveLinks()
-          isScrolling = false
-        })
-        isScrolling = true
-      }
-    })
+    let ticking = false
+    const onScroll = () => {
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(() => {
+        ticking = false
+        updateActiveLinks()
+      })
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    updateActiveLinks()
 
     // Observer para las secciones con animación
     const sectionObserver = new IntersectionObserver((entries) => {
@@ -462,9 +419,9 @@ const contactItem = {
       cancelScroll()
       window.removeEventListener('wheel', cancelScroll)
       window.removeEventListener('touchstart', cancelScroll)
-        observer.disconnect()
       sectionObserver.disconnect()
-      window.removeEventListener('scroll', updateActiveLinks)
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
     }
   })
 </script>

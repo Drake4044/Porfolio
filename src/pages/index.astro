@@ -12,6 +12,11 @@ import CodeIcon from '../icons/Code.astro'
 import Projects from '../components/Projects.astro';
 import ProfileCheck from '../icons/ProfileCheck.astro';
 import AboutMe from '../components/AboutMe.astro';
+import VisitCounter from '../components/VisitCounter.astro';
+// @ts-ignore: el proyecto no instala los tipos de Node; fs solo se usa al compilar
+import fs from 'node:fs';
+// Si subís tu CV a public/cv.pdf aparece el botón "Descargar CV"
+const hasCV = fs.existsSync('public/cv.pdf');
 ---
 
 <Layout title="Porfolio Martín Castro - Desarrollador y Programador Web Full Stack">
@@ -53,13 +58,19 @@ import AboutMe from '../components/AboutMe.astro';
 					Github
 				</SocialPill>
 				<SocialPill href="https://www.linkedin.com/in/martin-daniel-castro">
-					<LinkeInIcon class="size-7 fill-white group-hover:fill-yellow-400 "/>
+					<LinkeInIcon class="size-7 fill-white group-hover:fill-yellow-400 linkedin-icon"/>
 					LinkedIn
 				</SocialPill>
 				<SocialPill href="mailto:martincastro4044@gmail.com" id="mail">
 					<MailIcon class="size-8"/>
 					martincastro4044@gmail.com
 				</SocialPill>
+				{hasCV && (
+					<SocialPill href="/cv.pdf" download="CV-Martin-Castro.pdf" data-track="Descargar CV">
+						<svg xmlns="http://www.w3.org/2000/svg" class="size-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 11l5 5l5 -5"/><path d="M12 4l0 12"/></svg>
+						Descargar CV
+					</SocialPill>
+				)}
 			</nav>
 		</SectionContainer>
 
@@ -94,7 +105,32 @@ import AboutMe from '../components/AboutMe.astro';
 			<Experience/>
 		</SectionContainer>
 
-		<!-- Contenedor para la flecha entre experiencia y proyectos -->
+		<!-- Contenedor para la flecha entre experiencia y el contador de visitas -->
+		<div class="relative h-20 md:h-16 md:-mb-16 md:translate-y-4">
+			<div class="section-arrow absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2">
+				<svg 
+					xmlns="http://www.w3.org/2000/svg" 
+					class="icon icon-tabler icon-tabler-arrow-down" 
+					width="24" 
+					height="24" 
+					viewBox="0 0 24 24" 
+					stroke-width="2" 
+					stroke="currentColor" 
+					fill="none" 
+					stroke-linecap="round" 
+					stroke-linejoin="round"
+				>
+					<path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+					<path d="M12 5l0 14" />
+					<path d="M18 13l-6 6" />
+					<path d="M6 13l6 6" />
+				</svg>
+			</div>
+		</div>
+
+		<VisitCounter />
+
+		<!-- Flecha entre el contador de visitas y proyectos -->
 		<div class="relative h-20 md:h-16 md:-mb-16 md:translate-y-4">
 			<div class="section-arrow absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2">
 				<svg 
@@ -217,107 +253,59 @@ import AboutMe from '../components/AboutMe.astro';
 		.blob { animation: none; }
 	}
 
-	@keyframes floatingArrow {
-        0%, 100% { transform: translate(-50%, -50%); }
-        50% { transform: translate(-50%, calc(-50% + 10px)); }
-    }
-
-    @keyframes hideArrow {
-        0% { 
-            transform: translate(-50%, -50%);
-            opacity: 1;
-        }
-        50% { 
-            transform: translate(-50%, calc(-50% - 20px));
-            opacity: 0.5;
-        }
-        100% { 
-            transform: translate(-50%, calc(-50% - 30px));
-            opacity: 0;
-        }
-    }
-
-    @keyframes showArrow {
-        0% { 
-            transform: translate(-50%, calc(-50% - 30px));
-            opacity: 0;
-        }
-        50% { 
-            transform: translate(-50%, calc(-50% - 20px));
-            opacity: 0.5;
-        }
-        100% { 
-            transform: translate(-50%, -50%);
-            opacity: 1;
-        }
-    }
-
     .section-arrow {
-        animation: floatingArrow 1.5s ease-in-out infinite;
         color: rgb(250 204 21);
-        opacity: 1;
-        transition: none;
+        transition: opacity 0.45s ease, translate 0.45s cubic-bezier(0.22, 1, 0.36, 1), scale 0.45s ease;
     }
-
-    .section-arrow.hiding {
-        animation: hideArrow 0.8s ease-in-out forwards;
+    .section-arrow svg {
+        animation: floatingArrowSvg 1.5s ease-in-out infinite;
     }
-
-    .section-arrow.showing {
-        animation: showArrow 0.8s ease-in-out forwards;
+    @keyframes floatingArrowSvg {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(10px); }
+    }
+    .section-arrow.is-gone {
+        opacity: 0;
+        translate: 0 -24px;
+        scale: 0.8;
+        pointer-events: none;
     }
 </style>
 
 <script>
-	// Control dinámico de todas las flechas entre secciones
-    const sectionArrows = document.querySelectorAll('.section-arrow');
-    const hiddenStates = new Map();
-
-    sectionArrows.forEach((arrow, index) => {
-        if (arrow instanceof HTMLElement) {
-            hiddenStates.set(arrow, false);
-            
-            const checkArrowVisibility = () => {
-                const sections = Array.from(document.querySelectorAll('section'));
-                if (index >= sections.length - 1) return;
-
-                const currentSection = sections[index];
-                const nextSection = sections[index + 1];
-                
-                if (currentSection && nextSection) {
-                    const currentRect = currentSection.getBoundingClientRect();
-                    const nextRect = nextSection.getBoundingClientRect();
-                    
-                    // Calcular el porcentaje visible de la siguiente sección
-                    const nextSectionVisiblePercentage = (window.innerHeight - nextRect.top) / window.innerHeight * 100;
-                    const isHidden = hiddenStates.get(arrow);
-                    
-                    if (nextSectionVisiblePercentage >= 40 && !isHidden) {
-                        hiddenStates.set(arrow, true);
-                        arrow.classList.remove('showing');
-                        arrow.classList.add('hiding');
-                        setTimeout(() => {
-                            arrow.style.display = 'none';
-                        }, 800);
-                    } else if (nextSectionVisiblePercentage < 40 && isHidden) {
-                        arrow.style.display = 'flex';
-                        arrow.classList.remove('hiding');
-                        arrow.classList.add('showing');
-                        setTimeout(() => {
-                            arrow.classList.remove('showing');
-                        }, 800);
-                        hiddenStates.set(arrow, false);
-                    }
-                }
-            };
-
-            window.addEventListener('scroll', () => {
-                requestAnimationFrame(() => checkArrowVisibility());
-            });
-
-            // Verificar al cargar la página
-            checkArrowVisibility();
-        }
-    });
+	// ── Flechas entre secciones ──
+	// Cada flecha se ve mientras estás en la sección de arriba y se esconde cuando
+	// la sección siguiente ya ocupa buena parte de la pantalla. Si volvés a subir,
+	// aparece de nuevo. Se calcula en cada cuadro de scroll, sin timers que se pisen.
+	document.addEventListener('astro:page-load', () => {
+		const arrows = Array.from(document.querySelectorAll<HTMLElement>('.section-arrow'))
+		const pairs = arrows.map((arrow) => {
+			// La sección siguiente es el primer <section> que aparece después de la flecha
+			let next = arrow.closest('div.relative')?.nextElementSibling
+			while (next && next.tagName !== 'SECTION') next = next.nextElementSibling
+			return { arrow, next: next as HTMLElement | null }
+		})
+		const update = () => {
+			const vh = window.innerHeight
+			pairs.forEach(({ arrow, next }) => {
+				if (!next) return
+				const hide = next.getBoundingClientRect().top < vh * 0.6
+				arrow.classList.toggle('is-gone', hide)
+			})
+		}
+		let ticking = false
+		const onScroll = () => {
+			if (ticking) return
+			ticking = true
+			requestAnimationFrame(() => { ticking = false; update() })
+		}
+		window.addEventListener('scroll', onScroll, { passive: true })
+		window.addEventListener('resize', onScroll)
+		update()
+		document.addEventListener('astro:before-swap', () => {
+			window.removeEventListener('scroll', onScroll)
+			window.removeEventListener('resize', onScroll)
+		}, { once: true })
+	})
 </script>
 

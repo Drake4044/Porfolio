@@ -92,3 +92,22 @@ export const fechaAR = (date = new Date()) =>
     timeZone: 'America/Argentina/Buenos_Aires',
     weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', hour12: false,
   }).format(date)
+
+// Ciudades donde hay grandes centros de datos (Google, Amazon, Microsoft, Meta…).
+// Una visita desde ahí suele ser un robot o un escáner de seguridad, no una persona.
+const DATACENTER_CITIES = [
+  'council bluffs', 'ashburn', 'boardman', 'the dalles', 'prineville', 'quincy', 'lenoir',
+  'moncks corner', 'pryor', 'papillion', 'altoona', 'forest city', 'clarksville', 'lithia springs',
+  'new albany', 'mayes county',
+]
+export const isDatacenterCity = (city) => DATACENTER_CITIES.includes(String(city ?? '').toLowerCase())
+
+/** Valida la etiqueta de los links ?ref=empresa-x */
+export const cleanRef = (ref) =>
+  String(ref ?? '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9._-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 40)

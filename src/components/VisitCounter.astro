@@ -1,0 +1,159 @@
+---
+// Contador público de visitas con efecto de rodillos de tragamonedas.
+// Suma cada vez que alguien abre o recarga la página y se actualiza en vivo.
+import SectionContainer from './SectionContainer.astro'
+---
+
+<SectionContainer id="visitas" class="pt-8 md:pt-28 max-w-5xl mx-auto">
+  <div class="counter-card" data-reveal>
+    <p class="counter-label">
+      <span class="counter-live" data-counter-live hidden><i></i> en vivo</span>
+      Visitas a esta web
+    </p>
+    <div class="counter-reels" data-counter aria-live="polite" aria-label="Cargando visitas">
+      <span class="counter-placeholder">· · ·</span>
+    </div>
+    <p class="counter-sub">Cada visita suma. ¡Gracias por pasar! 👋</p>
+  </div>
+</SectionContainer>
+
+<style is:global>
+  .counter-card {
+    position: relative;
+    margin: 0 auto;
+    max-width: 40rem;
+    padding: 2rem 1.5rem 1.75rem;
+    text-align: center;
+    border-radius: 1.5rem;
+    border: 1px solid rgb(255 255 255 / 0.1);
+    background:
+      radial-gradient(120% 140% at 50% 0%, rgb(102 51 238 / 0.35), transparent 60%),
+      rgb(255 255 255 / 0.03);
+    box-shadow: 0 25px 60px -20px rgb(102 51 238 / 0.45);
+    overflow: hidden;
+  }
+  .counter-card::before {
+    /* brillo que cruza la tarjeta */
+    content: "";
+    position: absolute;
+    inset: -50% auto -50% -30%;
+    width: 30%;
+    transform: rotate(20deg);
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.08), transparent);
+    animation: counter-shine 6s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes counter-shine {
+    0%, 60% { left: -30%; }
+    100% { left: 130%; }
+  }
+  .counter-label {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0 0 1rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgb(250 204 21);
+  }
+  .counter-live {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.1rem 0.55rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    border-radius: 9999px;
+    color: #86efac;
+    background: rgb(34 197 94 / 0.12);
+    border: 1px solid rgb(34 197 94 / 0.35);
+  }
+  .counter-live i {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 9999px;
+    background: #22c55e;
+    animation: counter-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes counter-pulse {
+    0% { box-shadow: 0 0 0 0 rgb(34 197 94 / 0.6); }
+    70%, 100% { box-shadow: 0 0 0 6px rgb(34 197 94 / 0); }
+  }
+  .counter-reels {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: clamp(2.6rem, 9vw, 4.5rem);
+    font-weight: 800;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: #fff;
+    min-height: 1.35em;
+  }
+  .counter-placeholder {
+    opacity: 0.5;
+    letter-spacing: 0.2em;
+  }
+  .reel {
+    position: relative;
+    display: inline-block;
+    width: 0.78em;
+    height: 1.25em;
+    overflow: hidden;
+    border-radius: 0.18em;
+    background: linear-gradient(180deg, #0b0b12, #1b1b2b 50%, #0b0b12);
+    box-shadow: inset 0 0.08em 0.2em rgb(0 0 0 / 0.8), 0 0 0 1px rgb(255 255 255 / 0.08);
+  }
+  .reel::after {
+    /* sombra arriba y abajo, como un rodillo de verdad */
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgb(0 0 0 / 0.55), transparent 30%, transparent 70%, rgb(0 0 0 / 0.55));
+    pointer-events: none;
+  }
+  .reel-strip {
+    display: flex;
+    flex-direction: column;
+    will-change: transform;
+  }
+  .reel-strip span {
+    height: 1.25em;
+    display: grid;
+    place-items: center;
+    text-shadow: 0 0 0.25em rgb(250 204 21 / 0.45);
+  }
+  .reel-sep {
+    width: 0.25em;
+    color: rgb(250 204 21);
+  }
+  .reel.win {
+    animation: reel-win 0.9s ease;
+  }
+  @keyframes reel-win {
+    30% { box-shadow: inset 0 0.08em 0.2em rgb(0 0 0 / 0.8), 0 0 0 2px rgb(250 204 21), 0 0 1em rgb(250 204 21 / 0.6); }
+  }
+  .counter-sub {
+    margin: 1rem 0 0;
+    font-size: 0.95rem;
+    opacity: 0.75;
+  }
+  html.light .counter-card {
+    border-color: rgb(0 0 0 / 0.08);
+    background: radial-gradient(120% 140% at 50% 0%, rgb(196 181 253 / 0.6), transparent 60%), rgb(255 255 255 / 0.6);
+    box-shadow: 0 25px 60px -25px rgb(102 51 238 / 0.35);
+  }
+  html.light .counter-label { color: #b45309; }
+  html.light .counter-live { color: #15803d; }
+  @media (prefers-reduced-motion: reduce) {
+    .counter-card::before, .counter-live i { animation: none; }
+  }
+</style>
+
+<script>
+  import { initCounter } from '../scripts/counter'
+  document.addEventListener('astro:page-load', initCounter)
+</script>

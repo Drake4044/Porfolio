@@ -11,6 +11,7 @@ const SECTION_NAMES: Record<string, string> = {
   experiencia: 'Experiencia',
   proyectos: 'Proyectos',
   'sobre-mi': 'Sobre mí',
+  visitas: 'Contador de visitas',
 }
 
 interface Trail {
@@ -31,6 +32,20 @@ export function initTracker() {
     return
   }
   started = true
+
+  // Links con etiqueta: tusitio/?ref=empresa-x → se guarda "empresa-x" y se limpia de la barra de direcciones
+  let ref = ''
+  try {
+    const url = new URL(location.href)
+    ref = url.searchParams.get('ref') ?? ''
+    if (ref) {
+      sessionStorage.setItem('pf-ref', ref)
+      url.searchParams.delete('ref')
+      history.replaceState(history.state, '', url.pathname + url.search + url.hash)
+    } else {
+      ref = sessionStorage.getItem('pf-ref') ?? ''
+    }
+  } catch {}
 
   const trail: Trail = { secciones: [], proyectos: [], imagenes: [], clicks: [] }
   let key: string | null = null
@@ -73,6 +88,7 @@ export function initTracker() {
         path: location.pathname,
         referrer: document.referrer,
         lang: navigator.language,
+        ref,
         screen: `${screen.width}x${screen.height}`,
       }),
     })

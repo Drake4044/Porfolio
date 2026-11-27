@@ -40,6 +40,8 @@ const useMemory = () => process.env.PF_MEMORY_STORE === '1'
 
 /** Visitas: una entrada por visita reciente (v/...) y paquetes por mes (m/AAAA-MM). */
 export const visitas = () => (useMemory() ? memoryStore('visitas') : getStore({ name: 'portfolio-visitas', consistency: 'strong' }))
+/** Mensajes del formulario de contacto (c/...). */
+export const mensajes = () => (useMemory() ? memoryStore('mensajes') : getStore({ name: 'portfolio-mensajes', consistency: 'strong' }))
 /** Ajustes y seguridad: interruptores, intentos de login, códigos. */
 export const ajustes = () => (useMemory() ? memoryStore('ajustes') : getStore({ name: 'portfolio-ajustes', consistency: 'strong' }))
 
